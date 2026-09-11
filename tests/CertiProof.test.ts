@@ -59,12 +59,10 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState,
-      undefined,
       undefined,
       CostModel.initialCostModel()
     );
@@ -86,19 +84,17 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState,
-      undefined,
       undefined,
       CostModel.initialCostModel()
     );
 
-    await expect(
+    expect(() =>
       contract.impureCircuits.verifyCertificate(circuitCtx)
-    ).rejects.toThrow(/Student marks must be at least 60 to pass verification/);
+    ).toThrow(/Student marks must be at least 60 to pass verification/);
   });
 
   it('3. Public verification state is updated correctly on-chain', async () => {
@@ -115,10 +111,9 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState
     );
 
@@ -126,7 +121,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     const certHash = executionResult.result;
 
     // Inspect updated ledger from the execution context
-    const updatedState = executionResult.context.callContext.currentQueryContext.state;
+    const updatedState = executionResult.context.currentQueryContext.state;
     const updatedLedger: Ledger = ledger(updatedState);
 
     // Assert public counter incremented
@@ -148,15 +143,14 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState
     );
 
     const executionResult = await contract.impureCircuits.verifyCertificate(circuitCtx);
-    const updatedLedger = ledger(executionResult.context.callContext.currentQueryContext.state);
+    const updatedLedger = ledger(executionResult.context.currentQueryContext.state);
 
     // Verify public ledger only contains verifiedCertificates and totalVerified
     const ledgerKeys = Object.keys(updatedLedger);
@@ -184,10 +178,9 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState
     );
 
@@ -209,10 +202,9 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     // Boundary Test A: Exactly 60 marks (Passing boundary)
     activeStudentMarks = 60n;
     const passCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState
     );
     const passResult = await contract.impureCircuits.verifyCertificate(passCtx);
@@ -221,14 +213,13 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     // Boundary Test B: 59 marks (Failing boundary)
     activeStudentMarks = 59n;
     const failCtx = createCircuitContext(
-      'verifyCertificate',
       contractAddress,
-      emptyZswapLocalState(),
-      initRes.currentContractState.data,
+      emptyZswapLocalState(new Uint8Array(32)),
+      initRes.currentContractState,
       initRes.currentPrivateState
     );
-    await expect(
+    expect(() =>
       contract.impureCircuits.verifyCertificate(failCtx)
-    ).rejects.toThrow(/Student marks must be at least 60 to pass verification/);
+    ).toThrow(/Student marks must be at least 60 to pass verification/);
   });
 });

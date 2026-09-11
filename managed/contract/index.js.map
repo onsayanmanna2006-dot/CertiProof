@@ -2,7 +2,7 @@
   "version": 3,
   "file": "index.js",
   "sourceRoot": "../../",
-  "sources": ["src/CertiProof.compact", "compiler/zkir-v3-library.compact"],
+  "sources": ["src/CertiProof.compact", "compiler/standard-library.compact"],
   "names": [],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAYA;;;;;;;;;;;;;MA0DA,AAAA,iBAuCC;;;;;;;;;;;;;;;;;;;;;;;;OAAA;;;;;;;;GACA;EAlGD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IA0CA;;;;;;;;;;yEAA4D;IAG5D;;;;;;;;;yEAAqC;;;;;;;GAqDpC;EC9GD,AAAA,kBAAA;oEAAA;;;EDmCA,AAAA,wBAAoD;;0DAApD,qBAAoD;;;;;;;;;;;;;;GAAA;EAmCpD,AAAA,0BAuCC;UArCO,MAA8B;QAK7B,GAAgB;mCAAhB,MAAI,QAAJ,GAAgB;;UAKjB,UAAmD,0BAAL,MAAI;IAoBxD;;;;;;;;;;2HAAqC,UAAQ;;;;;;wEAAzB;UAGpB,KAAa;IAAb;;;;;;;;;;6FAAA,KAAa;;;;wEAAA;WAGG,UAAQ;GACzB;;;;;;;;;;;;;;;;IAvDD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA4D;;;;;;uCAA5D;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;KAAA;IAG5D;qCAAA;;;;;;;;;;;0GAAqC;KAAA;;;;;;;;;;;;;;;;"
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAYA;;;;;;;;;;;;;MA0DA,AAAA,iBAuCC;;;;;;;;;;;;;;;;;;;;;;OAAA;;;;;;;;GACA;EAlGD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IA0CA;;;;;;;;;;yEAA4D;IAG5D;;;;;;;;;yEAAqC;;;;;;;GAqDpC;EC9GD,AAAA,kBAAA;oEAAA;;;EDmCA,AAAA,wBAAoD;;0DAApD,qBAAoD;;;;;;;;;;;;;;GAAA;EAmCpD,AAAA,oBAuCC;UArCO,MAA8B;QAK7B,GAAgB;mCAAhB,MAAI,QAAJ,GAAgB;;UAKjB,UAAmD,0BAAL,MAAI;IAoBxD;;;;;;;;;;2HAAqC,UAAQ;;;;;;wEAAzB;UAGpB,KAAa;IAAb;;;;;;;;;;6FAAA,KAAa;;;;wEAAA;WAGG,UAAQ;GACzB;;;;;;;;;;;;;;;;IAvDD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA4D;;;;;;uCAA5D;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;KAAA;IAG5D;qCAAA;;;;;;;;;;;0GAAqC;KAAA;;;;;;;;;;;;"
 }
