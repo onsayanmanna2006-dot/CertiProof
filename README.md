@@ -2,7 +2,9 @@
 
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
-Built with Midnight's **Compact language** (toolchain `0.34.0`, language `0.26.0`, compact-runtime `0.19.0`), zero-knowledge circuits, private witnesses, and controlled disclosure (`disclose()`).
+Built with Midnight's **Compact language** (toolchain `0.30.0`, language `0.22.0`, ledger `8.0.2`, compact-runtime `0.15.0`), zero-knowledge circuits, private witnesses, and controlled disclosure (`disclose()`).
+
+> **Why toolchain 0.30.0?** This is the newest Compact toolchain whose generated `compact-runtime` version (`0.15.0`) has a matching, non-beta `midnight-js` deployment SDK release (`@midnight-ntwrk/midnight-js@4.0.4`) — the same combination used by Midnight's own actively-maintained [`example-counter`](https://github.com/midnightntwrk/example-counter) reference app. The newest toolchain (`0.34.0`) targets `compact-runtime@0.19.0`, which currently only has a pre-release (`5.0.0-beta.x`) JS SDK — riskier for a real deployment.
 
 ---
 
@@ -119,13 +121,13 @@ CertiProof/
 │   │   ├── index.js                     # Contract logic module
 │   │   └── index.js.map                 # Source map
 │   └── compiler/                        # Build manifests & metadata
-│       ├── contract-info.json
-│       └── contract-manifest.json
+│       └── contract-info.json
 ├── tests/
 │   ├── CertiProof.test.ts               # Primary Vitest unit & ZK circuit test suite
 │   └── CertificateVerifier.test.ts      # Verifier test suite
 ├── scripts/
-│   └── deploy.ts                        # Preview / Preprod testnet deployment script
+│   ├── config.ts                        # Network configuration (Preview / Preprod)
+│   └── deploy.ts                        # Real Midnight SDK deployment script
 ├── public/                              # Interactive demonstration UI
 │   ├── index.html                       # Verification interface
 │   ├── styles.css                       # Dark-mode styles
@@ -145,12 +147,14 @@ CertiProof/
 
 * **Node.js**: `v20+` or `v22+` or `v24+` (`v24.21.0` tested)
 * **npm**: `v10+` or `v11+` (`v11.19.0` tested)
-* **Compact Compiler**: `compact 0.5.2` CLI with toolchain `0.34.0` (Language version `0.26.0`, Compact Runtime `0.19.0`)
+* **Compact Compiler**: `compact` CLI, pinned to toolchain `0.30.0` (Language version `0.22.0`, Ledger version `8.0.2`, Compact Runtime `0.15.0`)
+* **Docker**: required to run the local ZK proof server for deployment
 
-To check your installed compiler:
+Install the Compact CLI and select the matching toolchain:
 ```bash
-compact compile --version
-# Output: 0.34.0
+compact update 0.30.0
+compact compile --version        # 0.30.0
+compact compile --runtime-version # 0.15.0
 ```
 
 ---
@@ -196,29 +200,42 @@ The test suite covers:
 
 ## Deployment to Midnight Preview/Preprod
 
+`scripts/deploy.ts` performs a **real** deployment using Midnight's official SDK generation
+(`@midnight-ntwrk/midnight-js@4.0.4` + `wallet-sdk-facade`/`wallet-sdk-hd`/`wallet-sdk-dust-wallet`),
+the same stack used by Midnight's own `example-counter` reference app. It derives an HD wallet from
+a seed, waits for it to sync and hold funds, registers NIGHT for DUST (fee token) generation,
+generates a real deployment proof via the local proof server, and submits the transaction.
+
 1. Copy `.env.example` to `.env`:
    ```bash
    cp .env.example .env
    ```
-2. Configure your wallet seed phrase and target network (`preview` or `preprod`) in `.env`.
-3. Request testnet **tDUST** from the official faucet:
+2. Generate a 32-byte hex wallet seed and put it in `.env` as `WALLET_SEED_HEX`:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+3. Run `npm run deploy` once to print the wallet's unshielded address, then fund it from the faucet:
    * Preview Faucet: [https://faucet.preview.midnight.network](https://faucet.preview.midnight.network)
    * Preprod Faucet: [https://faucet.preprod.midnight.network](https://faucet.preprod.midnight.network)
-4. Start the local proof server container:
+4. Start the local proof server (required even for public testnets — it never sees your data on-chain, but it does see witness values in the clear locally):
    ```bash
    docker run -p 6300:6300 midnightnetwork/proof-server
    ```
-5. Deploy:
+5. Re-run deployment once funded:
    ```bash
    npm run deploy
    ```
+   The script waits for sync, waits for DUST generation, deploys the contract, calls
+   `verifyCertificate` once against it, and prints the on-chain contract address and transaction ID.
 
 ---
 
 ## Contract Address
 
 > [!NOTE]
-> No fake contract address is listed. When deployed with funded testnet credentials via `npm run deploy`, the verified contract address will be printed and can be recorded in `.env`.
+> This project has not yet been deployed from this machine — Docker (for the proof server) is not
+> installed here, and deployment requires a funded testnet wallet. Run the steps above with your own
+> funded seed to deploy; `npm run deploy` will print the real contract address here.
 
 ---
 
