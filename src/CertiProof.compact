@@ -1,0 +1,110 @@
+// ==============================================================================
+// CertiProof - Midnight Network Smart Contract
+// ==============================================================================
+// Language: Compact (toolchain 0.34.0, language 0.26.0)
+//
+// Overview:
+// CertiProof is a privacy-preserving student certificate verification system.
+// It leverages zero-knowledge circuits, private witnesses, and controlled
+// disclosure (disclose()) to prove that a student achieved marks >= 60
+// without revealing the student's exact marks or private credentials.
+// ==============================================================================
+
+import CompactStandardLibrary;
+
+// ------------------------------------------------------------------------------
+// DATA STRUCTURES
+// ------------------------------------------------------------------------------
+
+// Private certificate payload provided off-chain by the student.
+// This structure holds sensitive educational information.
+export struct StudentCertificate {
+  studentId: Bytes<32>; // Anonymized / hashed student identifier
+  subjectId: Bytes<32>; // Subject or course code identifier
+  marks: Uint<16>;      // Exact marks obtained (e.g. 78) - MUST REMAIN PRIVATE
+  salt: Bytes<32>;       // High-entropy random salt to prevent brute-force pre-image search
+}
+
+// ------------------------------------------------------------------------------
+// PRIVATE WITNESS DECLARATIONS
+// ------------------------------------------------------------------------------
+// In Compact, witnesses represent off-chain callbacks that supply private data
+// to the zero-knowledge circuit directly from the student's local runtime/wallet.
+// Witness data is processed strictly within the client-side ZK proof system.
+// ------------------------------------------------------------------------------
+
+witness getStudentCertificate(): StudentCertificate;
+
+// ------------------------------------------------------------------------------
+// PUBLIC ON-CHAIN LEDGER STATE
+// ------------------------------------------------------------------------------
+// The ledger contains state that is replicated across the Midnight blockchain.
+//
+// PRIVACY GUARANTEE:
+// The public ledger stores ONLY:
+// 1. A cryptographic digest (persistentHash) of the verified certificate.
+// 2. The verification status (true).
+// 3. A public counter of total verified credentials.
+//
+// Under no circumstances are student marks or identities stored on the ledger.
+// ------------------------------------------------------------------------------
+
+// Map storing public verification records:
+// Key:   Bytes<32> (persistentHash of StudentCertificate)
+// Value: Boolean   (true = verified and valid)
+export ledger verifiedCertificates: Map<Bytes<32>, Boolean>;
+
+// Public counter tracking the total number of successful credential verifications.
+export ledger totalVerified: Counter;
+
+// ------------------------------------------------------------------------------
+// ZERO-KNOWLEDGE CIRCUITS & CONTROLLED DISCLOSURE
+// ------------------------------------------------------------------------------
+
+// Exported circuit that performs zero-knowledge verification.
+//
+// Proves:
+// "The student's marks are greater than or equal to 60."
+//
+// Returns:
+// The 32-byte public certificate hash recorded on-chain.
+export circuit verifyCertificate(): Bytes<32> {
+  // Step 1: Retrieve the private witness off-chain from the student's local wallet.
+  const cert = getStudentCertificate();
+
+  // Step 2: Zero-Knowledge Constraint Enforcement.
+  // This statement is mathematically proven inside the ZK circuit.
+  // If marks < 60, proof generation aborts and the transaction fails.
+  assert(cert.marks >= 60, "Student marks must be at least 60 to pass verification");
+
+  // Step 3: Compute Cryptographic Identifier.
+  // persistentHash creates a deterministic SHA-256 digest guaranteed to remain
+  // consistent across Midnight protocol upgrades.
+  const certHash = persistentHash<StudentCertificate>(cert);
+
+  // Step 4: Controlled Disclosure (disclose()).
+  // ----------------------------------------------------------------------------
+  // Why is this value being disclosed?
+  // - `certHash`: The verifier and relying parties need a canonical, public reference
+  //   to associate the proof with the specific certificate without revealing its contents.
+  // - `true`: The ledger requires a boolean value indicating successful verification.
+  //
+  // What information remains private?
+  // - `cert.marks`: The student's exact numerical score (e.g., 78) is NEVER disclosed.
+  // - `cert.studentId`: The student's identity remains shielded from public view.
+  // - `cert.salt`: Secret random blinding factor ensuring nobody can guess the marks
+  //   by hashing possible values (0 to 100).
+  //
+  // Why would disclosing the private marks be undesirable?
+  // - Privacy compliance: Education records are strictly protected (e.g. FERPA, GDPR).
+  // - Credential fairness: An employer or institution only needs proof of qualification
+  //   (marks >= 60), not access to sensitive grade rankings.
+  // ----------------------------------------------------------------------------
+  verifiedCertificates.insert(disclose(certHash), disclose(true));
+
+  // Step 5: Update public aggregate counter.
+  totalVerified.increment(1);
+
+  // Step 6: Return the disclosed certificate hash as proof receipt.
+  return disclose(certHash);
+}

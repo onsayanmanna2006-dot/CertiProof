@@ -1,0 +1,33 @@
+{
+  "name": "certiproof",
+  "version": "1.0.0",
+  "description": "CertiProof - Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on Midnight Network",
+  "type": "module",
+  "scripts": {
+    "compile": "PATH=\"$HOME/.local/bin:$PATH\" compact compile src/CertiProof.compact managed/",
+    "compile:verifier": "PATH=\"$HOME/.local/bin:$PATH\" compact compile src/CertificateVerifier.compact managed/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "tsx scripts/deploy.ts"
+  },
+  "keywords": [
+    "midnight",
+    "compact",
+    "zero-knowledge",
+    "zk-proofs",
+    "privacy",
+    "certiproof",
+    "blockchain"
+  ],
+  "author": "CertiProof Team",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.19.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.8"
+  }
+}
