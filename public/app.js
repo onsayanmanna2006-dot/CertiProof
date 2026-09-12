@@ -1,5 +1,52 @@
 // Client-side Interactive Simulation of ZK-Certificate-Verifier
 
+// --- 3D tilt & cursor-spotlight for depth cards -----------------------
+(function initTiltCards() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  if (reduceMotion || isCoarsePointer) return;
+
+  const MAX_DEG = 4.5;
+  let ticking = false;
+  let pendingEvent = null;
+
+  function applyTilt(card, event) {
+    const rect = card.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width;
+    const py = (event.clientY - rect.top) / rect.height;
+
+    const ry = (px - 0.5) * (MAX_DEG * 2);
+    const rx = (0.5 - py) * (MAX_DEG * 2);
+
+    card.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
+    card.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
+    card.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
+    card.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
+  }
+
+  function onMove(event) {
+    pendingEvent = event;
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      if (pendingEvent) applyTilt(pendingEvent.currentTarget, pendingEvent);
+      ticking = false;
+    });
+  }
+
+  function onLeave(event) {
+    const card = event.currentTarget;
+    card.style.setProperty('--rx', '0deg');
+    card.style.setProperty('--ry', '0deg');
+    card.style.setProperty('--my', '0%');
+  }
+
+  document.querySelectorAll('.tilt-card').forEach((card) => {
+    card.addEventListener('mousemove', onMove);
+    card.addEventListener('mouseleave', onLeave);
+  });
+})();
+
 async function sha256(message) {
   const msgUint8 = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
