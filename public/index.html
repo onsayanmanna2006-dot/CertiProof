@@ -3,129 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZK-Certificate-Verifier | Midnight Network</title>
+  <title>ZK Certificate Verifier | Midnight Network</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="background-glow"></div>
+  <div class="scene-backdrop" aria-hidden="true"></div>
 
-  <header class="header">
-    <div class="logo-area">
-      <div class="midnight-badge">MIDNIGHT NETWORK</div>
-      <h1 class="title">ZK-Certificate-Verifier</h1>
-      <p class="subtitle">Confidential Student Credential Verification with Compact & Zero-Knowledge Proofs</p>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">◆</span>
+      <span class="brand-name">ZK Certificate Verifier</span>
+    </div>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#vault">Verification</a>
+      <a href="#workflow">Credentials</a>
+      <a href="#public-private">Network</a>
+    </nav>
+    <div class="network-status">
+      <span class="status-dot" aria-hidden="true"></span>
+      Midnight &middot; Preview
     </div>
   </header>
 
-  <main class="container">
-    <section class="card input-card tilt-card">
-      <div class="card-header">
-        <h2>1. Private Certificate Inputs</h2>
-        <span class="privacy-pill">Client-Side Witness (Never sent to ledger)</span>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1 class="hero-title">ZK Certificate<br>Verifier</h1>
+      <p class="hero-sub">Confidential credential verification powered by zero-knowledge proofs. Prove a qualification is met &mdash; without revealing the record behind it.</p>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="proof-seal">
+        <svg class="seal-pattern" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="seal-lines" width="16" height="16" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="16" stroke="rgba(148,163,255,0.14)" stroke-width="1"></line>
+            </pattern>
+          </defs>
+          <rect width="240" height="240" fill="url(#seal-lines)"></rect>
+        </svg>
+        <div class="seal-ring">
+          <span class="seal-check">&#10003;</span>
+        </div>
+        <div class="seal-caption">
+          <span class="seal-title">Verified Credential</span>
+          <span class="seal-sub">Zero-Knowledge Proof</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="workflow" id="workflow" aria-label="Verification workflow">
+    <ol class="workflow-steps">
+      <li class="workflow-step" data-step="credential">
+        <span class="step-index">01</span>
+        <span class="step-label">Private Credential</span>
+      </li>
+      <li class="workflow-connector" aria-hidden="true"></li>
+      <li class="workflow-step" data-step="circuit">
+        <span class="step-index">02</span>
+        <span class="step-label">Generate ZK Proof</span>
+      </li>
+      <li class="workflow-connector" aria-hidden="true"></li>
+      <li class="workflow-step" data-step="proof">
+        <span class="step-index">03</span>
+        <span class="step-label">Proof Generated</span>
+      </li>
+      <li class="workflow-connector" aria-hidden="true"></li>
+      <li class="workflow-step" data-step="verify">
+        <span class="step-index">04</span>
+        <span class="step-label">Public Verification</span>
+      </li>
+      <li class="workflow-connector" aria-hidden="true"></li>
+      <li class="workflow-step" data-step="verified">
+        <span class="step-index">05</span>
+        <span class="step-label">Verified</span>
+      </li>
+    </ol>
+  </section>
+
+  <main class="workspace">
+    <section class="vault" id="vault" aria-labelledby="vault-heading">
+      <div class="panel-heading">
+        <h2 id="vault-heading">Secure Credential Vault</h2>
+        <p class="panel-caption">Private data. Never transmitted or disclosed.</p>
       </div>
 
-      <div class="presets-row">
-        <button id="preset-pass-btn" class="preset-btn pass">Load Passing Student (Score: 78)</button>
-        <button id="preset-fail-btn" class="preset-btn fail">Load Failing Student (Score: 48)</button>
+      <div class="preset-row">
+        <button type="button" id="preset-pass-btn" class="preset-btn">
+          <span class="preset-dot pass" aria-hidden="true"></span>
+          Passing sample &middot; score 78
+        </button>
+        <button type="button" id="preset-fail-btn" class="preset-btn">
+          <span class="preset-dot fail" aria-hidden="true"></span>
+          Failing sample &middot; score 48
+        </button>
       </div>
 
       <form id="verifier-form">
         <div class="form-group">
-          <label for="student-id">Student Identifier</label>
+          <label for="student-id">Student identifier</label>
           <input type="text" id="student-id" value="STUDENT_001_ALICE" placeholder="e.g. STUDENT_001_ALICE" required>
-          <span class="helper">Kept private off-chain</span>
+          <span class="helper">Kept private, off-chain</span>
         </div>
 
         <div class="form-group">
-          <label for="subject-id">Course / Subject Code</label>
+          <label for="subject-id">Course / subject code</label>
           <input type="text" id="subject-id" value="CS_101_ALGORITHMS" placeholder="e.g. CS_101_ALGORITHMS" required>
         </div>
 
         <div class="form-group">
-          <label for="marks">Student Marks (0 - 100)</label>
+          <label for="marks">Student marks (0&ndash;100)</label>
           <input type="number" id="marks" min="0" max="100" value="78" required>
-          <span class="helper alert-helper">Private: Proves <strong>marks &ge; 60</strong> without revealing score</span>
+          <span class="helper helper-emphasis">Proves <strong>marks &ge; 60</strong> without revealing the score</span>
         </div>
 
         <div class="form-group">
-          <label for="salt">Secret Blinding Salt (Entropy)</label>
+          <label for="salt">Secret blinding salt</label>
           <div class="input-with-button">
             <input type="text" id="salt" value="c8f1e94b2a304e76d91f284b" required>
-            <button type="button" id="generate-salt-btn" class="secondary-btn">New Salt</button>
+            <button type="button" id="generate-salt-btn" class="secondary-btn">New salt</button>
           </div>
-          <span class="helper">Prevents brute-force dictionary attacks against the certificate hash</span>
+          <span class="helper">Prevents dictionary attacks against the certificate hash</span>
         </div>
 
-        <button type="submit" id="verify-btn" class="primary-btn">
-          <span class="btn-text">Generate ZK Proof &amp; Verify</span>
-        </button>
+        <button type="submit" id="verify-btn" class="cta-primary">Generate ZK Proof</button>
       </form>
     </section>
 
-    <section class="card output-card tilt-card">
-      <div class="card-header">
-        <h2>2. Zero-Knowledge Circuit Execution</h2>
-        <span id="status-pill" class="status-pill idle">Awaiting Proof</span>
+    <section class="verification-panel" aria-labelledby="verification-heading">
+      <div class="panel-heading">
+        <h2 id="verification-heading">Zero-Knowledge Verification</h2>
+        <span id="status-pill" class="status-indicator idle" role="status" aria-live="polite">Awaiting proof</span>
       </div>
 
-      <div class="flow-indicator">
-        <div class="flow-step" id="step-witness">Private Witness</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-step" id="step-circuit">ZK Circuit (marks &ge; 60)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-step" id="step-disclose">disclose()</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-step" id="step-ledger">Public Ledger</div>
+      <div id="result-container" class="verification-result empty" aria-live="polite">
+        <p class="empty-copy">Fill out the credential vault, or load a sample, to run the zero-knowledge verification flow.</p>
       </div>
 
-      <div id="result-container" class="result-container empty">
-        <div class="empty-state">
-          <p>Fill out student details or select a preset to test the zero-knowledge verification flow.</p>
+      <div class="disclosure-split" id="public-private">
+        <div class="disclosure-col is-private">
+          <h3>Private &mdash; never disclosed</h3>
+          <ul>
+            <li>Student identifier</li>
+            <li>Exact marks</li>
+            <li>Blinding salt</li>
+          </ul>
         </div>
-      </div>
-
-      <div class="disclosure-analysis">
-        <h3>Controlled Disclosure Analysis (disclose())</h3>
-        <table class="disclosure-table">
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Visibility</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>certificateHash</code></td>
-              <td><span class="tag public">PUBLIC (disclosed)</span></td>
-              <td>Identifiers the credential on-chain without revealing content</td>
-            </tr>
-            <tr>
-              <td><code>verified: true</code></td>
-              <td><span class="tag public">PUBLIC (disclosed)</span></td>
-              <td>Verifiers and employers confirm the student passed</td>
-            </tr>
-            <tr>
-              <td><code>exactMarks</code></td>
-              <td><span class="tag private">SHIELDED / PRIVATE</span></td>
-              <td>Personal score stays hidden; circuit verifies marks &ge; 60</td>
-            </tr>
-            <tr>
-              <td><code>studentId</code></td>
-              <td><span class="tag private">SHIELDED / PRIVATE</span></td>
-              <td>Protects student privacy and prevents identity linking</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="disclosure-arrow" aria-hidden="true">&rarr;</div>
+        <div class="disclosure-col is-public">
+          <h3>Public &mdash; committed on-chain</h3>
+          <ul>
+            <li>Certificate hash</li>
+            <li><code>verified: true</code></li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <p>Midnight Network &bull; Compact 0.26.0 / 0.34.0 &bull; ZK-Certificate-Verifier</p>
+  <footer class="site-footer">
+    <p>Midnight Network &bull; Compact &bull; ZK-Certificate-Verifier</p>
   </footer>
 
   <script src="app.js"></script>

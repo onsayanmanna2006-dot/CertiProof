@@ -1,49 +1,34 @@
-// Client-side Interactive Simulation of ZK-Certificate-Verifier
+// Client-side interactive simulation of ZK-Certificate-Verifier
 
-// --- 3D tilt & cursor-spotlight for depth cards -----------------------
-(function initTiltCards() {
+// --- Subtle hero seal parallax (decorative only) -----------------------
+(function initHeroParallax() {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-  if (reduceMotion || isCoarsePointer) return;
+  const seal = document.querySelector('.proof-seal');
+  if (!seal || reduceMotion || isCoarsePointer) return;
 
-  const MAX_DEG = 4.5;
+  const MAX_DEG = 5;
   let ticking = false;
   let pendingEvent = null;
 
-  function applyTilt(card, event) {
-    const rect = card.getBoundingClientRect();
+  function apply(event) {
+    const rect = seal.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width;
     const py = (event.clientY - rect.top) / rect.height;
-
     const ry = (px - 0.5) * (MAX_DEG * 2);
     const rx = (0.5 - py) * (MAX_DEG * 2);
-
-    card.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
-    card.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
-    card.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
-    card.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
+    seal.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
+    seal.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
   }
 
-  function onMove(event) {
+  window.addEventListener('mousemove', (event) => {
     pendingEvent = event;
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
-      if (pendingEvent) applyTilt(pendingEvent.currentTarget, pendingEvent);
+      if (pendingEvent) apply(pendingEvent);
       ticking = false;
     });
-  }
-
-  function onLeave(event) {
-    const card = event.currentTarget;
-    card.style.setProperty('--rx', '0deg');
-    card.style.setProperty('--ry', '0deg');
-    card.style.setProperty('--my', '0%');
-  }
-
-  document.querySelectorAll('.tilt-card').forEach((card) => {
-    card.addEventListener('mousemove', onMove);
-    card.addEventListener('mouseleave', onLeave);
   });
 })();
 
@@ -68,15 +53,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusPill = document.getElementById('status-pill');
   const resultContainer = document.getElementById('result-container');
 
-  // Flow steps
-  const stepWitness = document.getElementById('step-witness');
-  const stepCircuit = document.getElementById('step-circuit');
-  const stepDisclose = document.getElementById('step-disclose');
-  const stepLedger = document.getElementById('step-ledger');
+  const workflowSteps = Array.from(document.querySelectorAll('.workflow-step'));
+  const stepOrder = ['credential', 'circuit', 'proof', 'verify', 'verified'];
 
-  function setStepActive(step) {
-    [stepWitness, stepCircuit, stepDisclose, stepLedger].forEach(s => s.classList.remove('active'));
-    if (step) step.classList.add('active');
+  function setWorkflow(activeKey, opts = {}) {
+    const activeIndex = stepOrder.indexOf(activeKey);
+    workflowSteps.forEach((step) => {
+      const key = step.dataset.step;
+      const index = stepOrder.indexOf(key);
+      step.classList.remove('is-complete', 'is-active', 'is-failed', 'is-verified');
+
+      if (opts.failedAt && key === opts.failedAt) {
+        step.classList.add('is-failed');
+      } else if (index < activeIndex) {
+        step.classList.add('is-complete');
+      } else if (index === activeIndex) {
+        step.classList.add(key === 'verified' ? 'is-verified' : 'is-active');
+      }
+    });
   }
 
   function randomHex(length) {
@@ -113,80 +107,86 @@ document.addEventListener('DOMContentLoaded', () => {
     const marks = parseInt(marksInput.value, 10);
     const salt = saltInput.value.trim();
 
-    // Visual step 1: Witness
-    setStepActive(stepWitness);
-    statusPill.className = 'status-pill idle';
-    statusPill.textContent = 'Generating Witness...';
+    setWorkflow('credential');
+    statusPill.className = 'status-indicator idle';
+    statusPill.textContent = 'Generating witness';
 
-    // Visual step 2: ZK Circuit Check
     await new Promise(r => setTimeout(r, 200));
-    setStepActive(stepCircuit);
+    setWorkflow('circuit');
 
     const isPassing = marks >= 60;
 
     if (!isPassing) {
-      statusPill.className = 'status-pill fail';
-      statusPill.textContent = 'VERIFICATION FAILED';
+      await new Promise(r => setTimeout(r, 250));
+      setWorkflow('circuit', { failedAt: 'circuit' });
 
-      resultContainer.className = 'result-container';
+      statusPill.className = 'status-indicator fail';
+      statusPill.textContent = 'Verification failed';
+
+      resultContainer.className = 'verification-result';
       resultContainer.innerHTML = `
-        <div class="result-box">
-          <div class="result-header">
-            <span class="badge fail">FAIL: MARKS &lt; 60</span>
-            <small style="color: var(--text-muted)">Circuit Assertion Failed</small>
+        <div class="result-seal">
+          <div class="result-top">
+            <span class="result-icon fail">&times;</span>
+            <div class="result-heading">
+              <span class="title">Proof rejected</span>
+              <span class="subtitle">Circuit constraint violated &mdash; marks &lt; 60</span>
+            </div>
           </div>
-          <p style="color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.8rem;">
-            ZK Circuit Constraint Violated: <code>assert(cert.marks >= 60)</code> rejected.
-          </p>
-          <div class="data-row">
-            <span class="data-label">Circuit Error Message</span>
-            <div class="data-val">"Student marks must be at least 60 to pass verification"</div>
+          <div class="result-row">
+            <span class="result-label">Circuit error</span>
+            <span class="result-value">assert(cert.marks &ge; 60) &mdash; "Student marks must be at least 60 to pass verification"</span>
           </div>
-          <div class="data-row">
-            <span class="data-label">Public Ledger Impact</span>
-            <div class="data-val">No transaction committed. Ledger remains unchanged.</div>
+          <div class="result-row">
+            <span class="result-label">Public ledger impact</span>
+            <span class="result-value muted">No transaction committed. Ledger remains unchanged.</span>
           </div>
         </div>
       `;
       return;
     }
 
-    // Visual step 3: Disclose & Ledger
-    await new Promise(r => setTimeout(r, 200));
-    setStepActive(stepDisclose);
+    await new Promise(r => setTimeout(r, 220));
+    setWorkflow('proof');
 
     const payload = `${studentId}:${subjectId}:${marks}:${salt}`;
     const certHash = await sha256(payload);
 
-    await new Promise(r => setTimeout(r, 200));
-    setStepActive(stepLedger);
+    await new Promise(r => setTimeout(r, 220));
+    setWorkflow('verify');
+
+    await new Promise(r => setTimeout(r, 220));
+    setWorkflow('verified');
 
     simulatedTotalVerified += 1;
-    statusPill.className = 'status-pill pass';
-    statusPill.textContent = 'VERIFICATION PASSED';
+    statusPill.className = 'status-indicator pass';
+    statusPill.textContent = 'Verification passed';
 
-    resultContainer.className = 'result-container';
+    resultContainer.className = 'verification-result';
     resultContainer.innerHTML = `
-      <div class="result-box">
-        <div class="result-header">
-          <span class="badge pass">VERIFIED (marks &ge; 60)</span>
-          <small style="color: var(--accent-cyan)">Proof Validated</small>
+      <div class="result-seal">
+        <div class="result-top">
+          <span class="result-icon pass">&#10003;</span>
+          <div class="result-heading">
+            <span class="title">Verified</span>
+            <span class="subtitle">Zero-knowledge proof valid &mdash; marks &ge; 60</span>
+          </div>
         </div>
-        <div class="data-row">
-          <span class="data-label">On-Chain Public Certificate Hash (disclose())</span>
-          <div class="data-val">0x${certHash}</div>
+        <div class="result-row">
+          <span class="result-label">Certificate hash (disclosed)</span>
+          <span class="result-value">0x${certHash}</span>
         </div>
-        <div class="data-row">
-          <span class="data-label">Public Verification Status</span>
-          <div class="data-val" style="color: var(--accent-green)">true (recorded in verifiedCertificates map)</div>
+        <div class="result-row">
+          <span class="result-label">Public verification status</span>
+          <span class="result-value accent-success">true &mdash; recorded in verifiedCertificates map</span>
         </div>
-        <div class="data-row">
-          <span class="data-label">Total Verified Ledger Counter</span>
-          <div class="data-val">${simulatedTotalVerified}</div>
+        <div class="result-row">
+          <span class="result-label">Total verified (ledger counter)</span>
+          <span class="result-value muted">${simulatedTotalVerified}</span>
         </div>
-        <div class="data-row">
-          <span class="data-label">Shielded Private Data (Never Disclosed)</span>
-          <div class="data-val" style="color: #c084fc">marks = [SHIELDED], studentId = [SHIELDED], salt = [SHIELDED]</div>
+        <div class="result-row">
+          <span class="result-label">Shielded private data (never disclosed)</span>
+          <span class="result-value muted">marks, studentId, salt</span>
         </div>
       </div>
     `;
