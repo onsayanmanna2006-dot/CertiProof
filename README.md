@@ -232,10 +232,12 @@ generates a real deployment proof via the local proof server, and submits the tr
 
 ## Contract Address
 
-> [!NOTE]
-> This project has not yet been deployed from this machine — Docker (for the proof server) is not
-> installed here, and deployment requires a funded testnet wallet. Run the steps above with your own
-> funded seed to deploy; `npm run deploy` will print the real contract address here.
+**Deployed on Midnight Preview:**
+
+* **Contract address:** `b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469`
+* **Transaction ID:** `00ee7f921068aefefe44573aae98362c8d9332996172db63f0053aac44494b3934`
+
+Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above.
 
 ---
 

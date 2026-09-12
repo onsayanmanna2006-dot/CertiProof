@@ -321,16 +321,21 @@ async function main(): Promise<void> {
   console.log('=============================================================\n');
 
   console.log('Calling verifyCertificate once to demonstrate the deployed contract...');
-  const callResult = await (deployed as any).callTx.verifyCertificate();
-  const certHash = callResult.public.result ?? callResult.private?.result;
-  if (certHash) {
-    console.log(`  Certificate hash (public, disclosed): ${bytesToHex(certHash)}`);
-  }
+  try {
+    const callResult = await (deployed as any).callTx.verifyCertificate();
+    const certHash = callResult.public.result ?? callResult.private?.result;
+    if (certHash) {
+      console.log(`  Certificate hash (public, disclosed): ${bytesToHex(certHash)}`);
+    }
 
-  const state = await providers.publicDataProvider.queryContractState(contractAddress);
-  if (state) {
-    const currentLedger = ledger(state.data);
-    console.log(`  totalVerified on-chain: ${currentLedger.totalVerified}`);
+    const state = await providers.publicDataProvider.queryContractState(contractAddress);
+    if (state) {
+      const currentLedger = ledger(state.data);
+      console.log(`  totalVerified on-chain: ${currentLedger.totalVerified}`);
+    }
+  } catch (e) {
+    console.warn('\n  Warning: demo verifyCertificate call failed (contract is still deployed above):');
+    console.warn(`  ${(e as Error).message}`);
   }
 
   await walletCtx.wallet.stop();
