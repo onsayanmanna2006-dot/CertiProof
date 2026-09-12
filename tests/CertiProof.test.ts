@@ -21,6 +21,9 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// CoinPublicKey is a hex-encoded string, not raw bytes
+const DUMMY_COIN_PUBLIC_KEY = '00'.repeat(32);
+
 describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
   let activeStudentMarks: bigint;
   let activeStudentId: Uint8Array;
@@ -54,13 +57,13 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 78n; // Score >= 60
 
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState,
       undefined,
@@ -79,13 +82,13 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 55n; // Score < 60 must be rejected by ZK circuit
 
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState,
       undefined,
@@ -101,7 +104,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 92n; // High distinction
 
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
 
     // Initial state check: 0 verified certificates
@@ -112,7 +115,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState
     );
@@ -138,13 +141,13 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentId = stringToBytes32('CONFIDENTIAL_STUDENT_ID_999');
 
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState
     );
@@ -173,13 +176,13 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 65n;
 
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
 
     const contractAddress = dummyContractAddress();
     const circuitCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState
     );
@@ -195,7 +198,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
 
   it('6. Boundary test: Exactly 60 marks passes, 59 marks fails', async () => {
     const contract = new Contract(witnesses);
-    const constructorCtx = createConstructorContext({}, new Uint8Array(32));
+    const constructorCtx = createConstructorContext({}, DUMMY_COIN_PUBLIC_KEY);
     const initRes = await contract.initialState(constructorCtx);
     const contractAddress = dummyContractAddress();
 
@@ -203,7 +206,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 60n;
     const passCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState
     );
@@ -214,7 +217,7 @@ describe('CertiProof ZK-Certificate-Verifier Contract Tests', () => {
     activeStudentMarks = 59n;
     const failCtx = createCircuitContext(
       contractAddress,
-      emptyZswapLocalState(new Uint8Array(32)),
+      emptyZswapLocalState(DUMMY_COIN_PUBLIC_KEY),
       initRes.currentContractState,
       initRes.currentPrivateState
     );

@@ -19,6 +19,7 @@ build/
 
 # Local execution state
 .midnight-state.json
+midnight-level-db/
 
 # Keep compiled circuits and keys in Git as required
 !managed/
