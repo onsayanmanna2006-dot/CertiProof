@@ -794,6 +794,54 @@ input:focus {
   border-top: 1px solid var(--hairline);
 }
 
+/* ---------- Wallet connect ---------- */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+#wallet-btn.is-connected {
+  color: var(--success);
+  border-color: var(--success-soft);
+}
+
+#wallet-btn.is-connecting {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* ---------- Privacy proof panel ---------- */
+
+.privacy-proof {
+  margin-top: 1.25rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--bg-inset);
+}
+
+.privacy-proof h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  color: var(--accent-strong);
+}
+
+.privacy-proof-output {
+  margin: 0.75rem 0 0;
+  padding: 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-base);
+  border: 1px solid var(--hairline);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ---------- Small screens ---------- */
 
 @media (max-width: 640px) {

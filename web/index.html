@@ -22,9 +22,12 @@
       <a href="#workflow">Credentials</a>
       <a href="#public-private">Network</a>
     </nav>
-    <div class="network-status">
-      <span class="status-dot" aria-hidden="true"></span>
-      Midnight &middot; Preview
+    <div class="header-actions">
+      <div class="network-status">
+        <span class="status-dot" aria-hidden="true"></span>
+        Midnight &middot; Preprod
+      </div>
+      <button type="button" id="wallet-btn" class="secondary-btn">Connect Lace</button>
     </div>
   </header>
 
@@ -161,6 +164,12 @@
           </ul>
         </div>
       </div>
+
+      <div id="privacy-proof" class="privacy-proof" hidden>
+        <h3>On-chain privacy proof</h3>
+        <p class="panel-caption">Fetched live from the Preprod indexer after your transaction was finalized.</p>
+        <pre id="privacy-proof-output" class="privacy-proof-output"></pre>
+      </div>
     </section>
   </main>
 
@@ -168,6 +177,6 @@
     <p>Midnight Network &bull; Compact &bull; ZK-Certificate-Verifier</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

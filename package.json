@@ -8,7 +8,9 @@
     "compile:verifier": "PATH=\"$HOME/.local/bin:$PATH\" compact compile src/CertificateVerifier.compact managed/",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "tsx scripts/deploy.ts"
+    "deploy": "tsx scripts/deploy.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts"
   },
   "keywords": [
     "midnight",
@@ -24,12 +26,14 @@
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.0",
     "@midnight-ntwrk/compact-runtime": "0.15.0",
+    "@midnight-ntwrk/dapp-connector-api": "4.0.1",
     "@midnight-ntwrk/ledger-v8": "8.0.3",
     "@midnight-ntwrk/midnight-js": "4.0.4",
     "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.0.4",
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.4",
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.4",
     "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.4",
+    "@midnight-ntwrk/midnight-js-utils": "4.0.4",
     "@midnight-ntwrk/wallet-sdk-address-format": "3.1.0",
     "@midnight-ntwrk/wallet-sdk-dust-wallet": "3.0.0",
     "@midnight-ntwrk/wallet-sdk-facade": "3.0.0",
@@ -40,14 +44,19 @@
     "pino": "^9.5.0",
     "pino-pretty": "^13.0.0",
     "rxjs": "^7.8.1",
+    "semver": "7.8.5",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/semver": "7.8.0",
     "@types/ws": "^8.5.13",
     "dotenv": "^16.4.7",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",
+    "vite": "6.4.3",
+    "vite-plugin-top-level-await": "1.6.0",
+    "vite-plugin-wasm": "3.5.0",
     "vitest": "^3.0.8"
   }
 }
