@@ -2,7 +2,7 @@ import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
 import { callVerifyCertificate, type StudentCertificateInput } from './contract';
 
-const NETWORK_ID = 'preprod';
+const NETWORK_ID = 'preview';
 const PROOF_SERVER_URI = (import.meta as any).env?.VITE_PROOF_SERVER_URI || 'http://127.0.0.1:6300';
 
 // --- Subtle hero seal parallax (decorative only) -----------------------
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="result-value">0x${bytesToHex(certHash)}</span>
         </div>
         <div class="result-row">
-          <span class="result-label">Transaction ID (Preprod)</span>
+          <span class="result-label">Transaction ID (Preview)</span>
           <span class="result-value">${txId}</span>
         </div>
         <div class="result-row">

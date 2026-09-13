@@ -1,13 +1,19 @@
 /**
  * Builds the Midnight providers bag for the browser, backed by the connected
- * Lace wallet, and joins the already-deployed verifyCertificate contract on
- * Preprod so its circuit can be called for real from this page.
+ * Lace wallet, and joins the already-deployed verifyCertificate contract so
+ * its circuit can be called for real from this page.
  *
  * Mirrors the exact working shape already proven by scripts/deploy.ts on
  * this SDK generation (compact-js@2.5.0 / midnight-js@4.0.4): the same
  * CompiledContract.make/withWitnesses/withCompiledFileAssets pipeline, the
  * same providers bag shape, just backed by Lace instead of a headless
  * seed-derived wallet.
+ *
+ * Targets Preview, not Preprod: three attempts to deploy fresh to Preprod
+ * from this machine (8GB RAM) hit unbounded memory growth during wallet
+ * sync (crashed at ~2GB, then ~3.3GB, then ~5GB before OOMing) — see the
+ * README's "Contract Address" section. Preview's deployment predates that
+ * and is proven working, so the frontend targets it instead for now.
  */
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js/contracts';
@@ -22,9 +28,8 @@ import { Contract, ledger, type Witnesses, type Ledger } from '../../managed/con
 import { BrowserZkConfigProvider } from './browserZkConfigProvider';
 import { inMemoryPrivateStateProvider } from './inMemoryPrivateStateProvider';
 
-// Deployed on Midnight Preprod via `MIDNIGHT_NETWORK=preprod npm run deploy` (scripts/deploy.ts).
-// Placeholder until the real Preprod deployment is run — see README "Contract Address".
-export const PREPROD_CONTRACT_ADDRESS = 'REPLACE_WITH_PREPROD_CONTRACT_ADDRESS';
+// Deployed on Midnight Preview via `npm run deploy` (scripts/deploy.ts). See README "Contract Address".
+export const DEPLOYED_CONTRACT_ADDRESS = 'b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469';
 
 export const PRIVATE_STATE_ID = 'certiproofPrivateState';
 
@@ -112,7 +117,7 @@ export async function callVerifyCertificate(
   const compiledContract = buildCompiledContract(input);
 
   const deployed = await findDeployedContract(providers as any, {
-    contractAddress: PREPROD_CONTRACT_ADDRESS,
+    contractAddress: DEPLOYED_CONTRACT_ADDRESS,
     compiledContract,
     privateStateId: PRIVATE_STATE_ID,
     initialPrivateState: null,
@@ -122,7 +127,7 @@ export async function callVerifyCertificate(
   const certHash: Uint8Array = callResult.private.result;
   const txId: string = callResult.public.txId;
 
-  const updatedContractState = await providers.publicDataProvider.queryContractState(PREPROD_CONTRACT_ADDRESS);
+  const updatedContractState = await providers.publicDataProvider.queryContractState(DEPLOYED_CONTRACT_ADDRESS);
   const updatedLedger: Ledger | null = updatedContractState ? ledger(updatedContractState.data) : null;
 
   return { certHash, txId, ledger: updatedLedger };

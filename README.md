@@ -189,7 +189,7 @@ npm test
 npm run dev:web
 ```
 Open the printed URL in a browser with the **Lace wallet extension** installed, connected to
-**Preprod**, and funded (see faucet link below). You'll also need the local proof server running
+**Preview**, and funded (see faucet link below). You'll also need the local proof server running
 (step 4 under "Deployment", below) — the frontend calls the real deployed circuit, not a simulation.
 
 ```bash
@@ -204,7 +204,7 @@ The test suite covers:
 1. **Passing Verification**: Students with marks $\ge 60$ pass verification and produce a valid 32-byte hash.
 2. **Failing Verification**: Students with marks $< 60$ trigger circuit assertion failure (`assert(cert.marks >= 60)`).
 3. **Public Ledger State Updates**: Asserts that `totalVerified` increments and `verifiedCertificates` records the hash.
-4. **Privacy Non-Disclosure**: Confirms that student marks, student ID, and salt are **never** present in public ledger state. This isn't only asserted in the test suite — the web dApp (`web/`) demonstrates it live: after a real submitted transaction, it re-queries the Preprod indexer for the contract's public ledger and renders an "On-chain privacy proof" panel that lists the ledger's actual fields (`totalVerified`, `verifiedCertificates`) and explicitly searches the serialized ledger for the marks/studentId/salt you entered, showing they're not found.
+4. **Privacy Non-Disclosure**: Confirms that student marks, student ID, and salt are **never** present in public ledger state. This isn't only asserted in the test suite — the web dApp (`web/`) demonstrates it live: after a real submitted transaction, it re-queries the Preview indexer for the contract's public ledger and renders an "On-chain privacy proof" panel that lists the ledger's actual fields (`totalVerified`, `verifiedCertificates`) and explicitly searches the serialized ledger for the marks/studentId/salt you entered, showing they're not found.
 5. **Deterministic Hashing**: Proves identical credentials yield deterministic `persistentHash` commitments.
 6. **Boundary Conditions**: Tests boundary values (marks = 59 fails; marks = 60 passes).
 
@@ -244,18 +244,25 @@ generates a real deployment proof via the local proof server, and submits the tr
 
 ## Contract Address
 
-**Deployed on Midnight Preprod** (the network the web dApp and demo video target):
-
-* **Contract address:** `TBD` — filled in after running `MIDNIGHT_NETWORK=preprod npm run deploy` (see below)
-* **Transaction ID:** `TBD`
-* Verify on-chain: Preprod indexer / block explorer, once available.
-
-**Also deployed on Midnight Preview** (earlier deployment, kept for reference):
+**Deployed on Midnight Preview** (this is what the live demo and web dApp target):
 
 * **Contract address:** `b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469`
 * **Transaction ID:** `00ee7f921068aefefe44573aae98362c8d9332996172db63f0053aac44494b3934`
 
-Both deployed via `MIDNIGHT_NETWORK=<preprod|preview> npm run deploy` using the real Midnight SDK deployment flow described above.
+Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above.
+
+### Preprod: attempted, currently blocked on this machine
+
+A funded Preprod wallet was used to attempt `MIDNIGHT_NETWORK=preprod npm run deploy` three times.
+Each attempt hit **unbounded memory growth during wallet sync** (`wallet-sdk-shielded`/
+`wallet-sdk-dust-wallet`'s `Sync` path) and crashed with a JavaScript heap OOM — at ~2GB with
+Node's default heap, then ~3.3GB with an 4GB heap limit, then ~5GB with a 6GB limit. Each retry
+crashed higher, not at a fixed point, which points to a real memory-growth issue in this SDK
+generation's Preprod wallet sync (possibly Preprod's larger chain history) rather than a one-off
+resource shortfall — so simply raising the heap further wasn't pursued past that, especially on
+this machine's 8GB of total RAM. Reproducible via the same `Deployment` steps above with
+`MIDNIGHT_NETWORK=preprod`; likely needs either a machine with substantially more RAM, or an SDK
+fix/lighter sync mode, to complete.
 
 ---
 
@@ -263,7 +270,7 @@ Both deployed via `MIDNIGHT_NETWORK=<preprod|preview> npm run deploy` using the 
 
 `https://onsayanmanna2006-dot.github.io/CertiProof/` — deployed automatically on every push to `main`
 via `.github/workflows/deploy-pages.yml`, which builds `web/` with Vite and publishes `dist/` to
-GitHub Pages. Requires the Lace wallet extension (Preprod, funded) and a local proof server running
+GitHub Pages. Requires the Lace wallet extension (Preview, funded) and a local proof server running
 to actually submit a transaction; without a connected wallet the page still loads and explains what's
 needed.
 
