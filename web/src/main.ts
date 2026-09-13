@@ -165,6 +165,30 @@ function init() {
     privacyProof.hidden = true;
   }
 
+  function renderWalletActionNeeded(reason: string) {
+    setWorkflow('circuit', { failedAt: 'circuit' });
+    statusPill.className = 'status-indicator fail';
+    statusPill.textContent = 'Action needed in Lace';
+
+    resultContainer.className = 'verification-result';
+    resultContainer.innerHTML = `
+      <div class="result-seal">
+        <div class="result-top">
+          <span class="result-icon fail">&#33;</span>
+          <div class="result-heading">
+            <span class="title">Lace needs your attention</span>
+            <span class="subtitle">${reason}</span>
+          </div>
+        </div>
+        <div class="result-row">
+          <span class="result-label">What to do</span>
+          <span class="result-value">Unlock Lace (or approve/retry the request it's showing), then click "Generate ZK Proof" again.</span>
+        </div>
+      </div>
+    `;
+    privacyProof.hidden = true;
+  }
+
   function renderVerified(input: StudentCertificateInput, certHash: Uint8Array, txId: string, totalVerified: bigint) {
     setWorkflow('verified');
     statusPill.className = 'status-indicator pass';
@@ -255,8 +279,12 @@ function init() {
     } catch (error) {
       console.error('[CertiProof] verifyCertificate failed:', error);
       const message = error instanceof Error ? error.message : String(error);
+      const isWalletApiError = typeof error === 'object' && error !== null && (error as any).type === 'DAppConnectorAPIError';
+
       if (message.includes('Student marks must be at least 60')) {
         renderCircuitRejected(message);
+      } else if (isWalletApiError) {
+        renderWalletActionNeeded((error as any).reason || message);
       } else {
         setWorkflow('circuit', { failedAt: 'circuit' });
         statusPill.className = 'status-indicator fail';
