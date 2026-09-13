@@ -82,11 +82,17 @@ function buildCompiledContract(input: StudentCertificateInput) {
 
 async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, proofServerUri: string) {
   const zkConfigProvider = new BrowserZkConfigProvider(ZK_ASSETS_BASE_URL);
-  const { indexerUri, indexerWsUri } = await connectedAPI.getConfiguration();
+
+  const configuration = await connectedAPI.getConfiguration();
+  console.log('[CertiProof] wallet configuration:', configuration);
+  const { indexerUri, indexerWsUri } = configuration;
+
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
+  console.log('[CertiProof] shielded addresses:', shieldedAddresses);
 
   const coinPublicKeyHex = bech32ToHex(shieldedAddresses.shieldedCoinPublicKey, networkId, 'coin');
   const encryptionPublicKeyHex = bech32ToHex(shieldedAddresses.shieldedEncryptionPublicKey, networkId, 'encryption');
+  console.log('[CertiProof] decoded coin/encryption public keys (hex):', { coinPublicKeyHex, encryptionPublicKeyHex });
 
   return {
     privateStateProvider: inMemoryPrivateStateProvider<string, null>(),
@@ -97,15 +103,19 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, pro
       getCoinPublicKey: () => coinPublicKeyHex,
       getEncryptionPublicKey: () => encryptionPublicKeyHex,
       balanceTx: async (tx: any) => {
+        console.log('[CertiProof] balanceTx: requesting Lace to balance the unsealed transaction (this should prompt Lace)…');
         const serializedTx = toHex(tx.serialize());
         const { tx: balancedHex } = await connectedAPI.balanceUnsealedTransaction(serializedTx);
+        console.log('[CertiProof] balanceTx: Lace returned a balanced transaction.');
         return Transaction.deserialize('signature', 'proof', 'binding', fromHex(balancedHex));
       },
     },
     midnightProvider: {
       submitTx: async (tx: any) => {
+        console.log('[CertiProof] submitTx: submitting the balanced transaction via Lace…');
         const serializedTx = toHex(tx.serialize());
         await connectedAPI.submitTransaction(serializedTx);
+        console.log('[CertiProof] submitTx: submitted.');
         return tx.identifiers()[0];
       },
     },
@@ -118,22 +128,36 @@ export async function callVerifyCertificate(
   proofServerUri: string,
   input: StudentCertificateInput,
 ) {
+  console.log('[CertiProof] 1/5 building providers…', { networkId, proofServerUri, contractAddress: DEPLOYED_CONTRACT_ADDRESS });
   const providers = await buildProviders(connectedAPI, networkId, proofServerUri);
+  console.log('[CertiProof] 2/5 providers built. indexer/node come from the connected wallet\'s own getConfiguration().');
+
+  console.log('[CertiProof] 3/5 building compiled contract with witness input:', {
+    studentId: input.studentId,
+    subjectId: input.subjectId,
+    marks: input.marks.toString(),
+    salt: input.salt,
+  });
   const compiledContract = buildCompiledContract(input);
 
+  console.log('[CertiProof] 4/5 joining deployed contract via findDeployedContract…');
   const deployed = await findDeployedContract(providers as any, {
     contractAddress: DEPLOYED_CONTRACT_ADDRESS,
     compiledContract,
     privateStateId: PRIVATE_STATE_ID,
     initialPrivateState: null,
   } as any);
+  console.log('[CertiProof] joined contract at', (deployed as any).deployTxData?.public?.contractAddress);
 
+  console.log('[CertiProof] 5/5 calling verifyCertificate circuit (this runs the local witness, generates a proof, and — via the wallet provider — balances and submits the transaction)…');
   const callResult = await (deployed as any).callTx.verifyCertificate();
   const certHash: Uint8Array = callResult.private.result;
   const txId: string = callResult.public.txId;
+  console.log('[CertiProof] verifyCertificate succeeded. txId:', txId);
 
   const updatedContractState = await providers.publicDataProvider.queryContractState(DEPLOYED_CONTRACT_ADDRESS);
   const updatedLedger: Ledger | null = updatedContractState ? ledger(updatedContractState.data) : null;
+  console.log('[CertiProof] updated ledger:', updatedLedger);
 
   return { certHash, txId, ledger: updatedLedger };
 }

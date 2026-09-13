@@ -253,6 +253,7 @@ function init() {
       setWorkflow('verify');
       renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n);
     } catch (error) {
+      console.error('[CertiProof] verifyCertificate failed:', error);
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes('Student marks must be at least 60')) {
         renderCircuitRejected(message);
