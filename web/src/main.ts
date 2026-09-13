@@ -41,7 +41,7 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
   setNetworkId(NETWORK_ID);
 
   const form = document.getElementById('verifier-form') as HTMLFormElement;
@@ -266,4 +266,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderWalletButton();
-});
+}
+
+// This module's top-level code can take a while to reach this point (importing
+// the WASM-backed Midnight packages suspends module evaluation), so the real
+// DOMContentLoaded event has very likely already fired by the time we get here
+// — registering for it unconditionally would mean init() never runs.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
