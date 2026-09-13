@@ -1,3 +1,4 @@
+import './polyfills';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
 import { callVerifyCertificate, type StudentCertificateInput } from './contract';
