@@ -128,10 +128,16 @@ CertiProof/
 ├── scripts/
 │   ├── config.ts                        # Network configuration (Preview / Preprod)
 │   └── deploy.ts                        # Real Midnight SDK deployment script
-├── public/                              # Interactive demonstration UI
+├── web/                                 # Real browser dApp (Vite)
 │   ├── index.html                       # Verification interface
 │   ├── styles.css                       # Dark-mode styles
-│   └── app.js                           # Interactive client simulation
+│   ├── public/managed/                  # zk keys/zkir served statically for the browser
+│   └── src/
+│       ├── main.ts                      # DOM wiring + submit flow
+│       ├── wallet.ts                    # Lace connect/disconnect (DApp Connector API)
+│       ├── contract.ts                  # Providers + findDeployedContract + callTx
+│       ├── browserZkConfigProvider.ts   # Fetch-based ZK asset loader (browser analogue of NodeZkConfigProvider)
+│       └── inMemoryPrivateStateProvider.ts
 ├── screenshots/                         # Verification screenshot guidelines
 │   └── README.md
 ├── package.json                         # Node.js project manifest & scripts
@@ -178,10 +184,16 @@ npm test
 ```
 *Executes all Vitest unit and circuit tests against `@midnight-ntwrk/compact-runtime`.*
 
-### 4. Run the Local Demo Interface
+### 4. Run the Real Browser dApp
 ```bash
-npx serve public
-# or: python3 -m http.server 8080 --directory public
+npm run dev:web
+```
+Open the printed URL in a browser with the **Lace wallet extension** installed, connected to
+**Preprod**, and funded (see faucet link below). You'll also need the local proof server running
+(step 4 under "Deployment", below) — the frontend calls the real deployed circuit, not a simulation.
+
+```bash
+npm run build:web   # production build to dist/, used by the GitHub Pages workflow
 ```
 
 ---
@@ -192,7 +204,7 @@ The test suite covers:
 1. **Passing Verification**: Students with marks $\ge 60$ pass verification and produce a valid 32-byte hash.
 2. **Failing Verification**: Students with marks $< 60$ trigger circuit assertion failure (`assert(cert.marks >= 60)`).
 3. **Public Ledger State Updates**: Asserts that `totalVerified` increments and `verifiedCertificates` records the hash.
-4. **Privacy Non-Disclosure**: Confirms that student marks, student ID, and salt are **never** present in public ledger state.
+4. **Privacy Non-Disclosure**: Confirms that student marks, student ID, and salt are **never** present in public ledger state. This isn't only asserted in the test suite — the web dApp (`web/`) demonstrates it live: after a real submitted transaction, it re-queries the Preprod indexer for the contract's public ledger and renders an "On-chain privacy proof" panel that lists the ledger's actual fields (`totalVerified`, `verifiedCertificates`) and explicitly searches the serialized ledger for the marks/studentId/salt you entered, showing they're not found.
 5. **Deterministic Hashing**: Proves identical credentials yield deterministic `persistentHash` commitments.
 6. **Boundary Conditions**: Tests boundary values (marks = 59 fails; marks = 60 passes).
 
@@ -221,9 +233,9 @@ generates a real deployment proof via the local proof server, and submits the tr
    ```bash
    docker run -p 6300:6300 midnightnetwork/proof-server
    ```
-5. Re-run deployment once funded:
+5. Re-run deployment once funded (defaults to Preview; set `MIDNIGHT_NETWORK=preprod` to target Preprod):
    ```bash
-   npm run deploy
+   MIDNIGHT_NETWORK=preprod npm run deploy
    ```
    The script waits for sync, waits for DUST generation, deploys the contract, calls
    `verifyCertificate` once against it, and prints the on-chain contract address and transaction ID.
@@ -232,12 +244,35 @@ generates a real deployment proof via the local proof server, and submits the tr
 
 ## Contract Address
 
-**Deployed on Midnight Preview:**
+**Deployed on Midnight Preprod** (the network the web dApp and demo video target):
+
+* **Contract address:** `TBD` — filled in after running `MIDNIGHT_NETWORK=preprod npm run deploy` (see below)
+* **Transaction ID:** `TBD`
+* Verify on-chain: Preprod indexer / block explorer, once available.
+
+**Also deployed on Midnight Preview** (earlier deployment, kept for reference):
 
 * **Contract address:** `b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469`
 * **Transaction ID:** `00ee7f921068aefefe44573aae98362c8d9332996172db63f0053aac44494b3934`
 
-Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above.
+Both deployed via `MIDNIGHT_NETWORK=<preprod|preview> npm run deploy` using the real Midnight SDK deployment flow described above.
+
+---
+
+## Live Demo
+
+`https://onsayanmanna2006-dot.github.io/CertiProof/` — deployed automatically on every push to `main`
+via `.github/workflows/deploy-pages.yml`, which builds `web/` with Vite and publishes `dist/` to
+GitHub Pages. Requires the Lace wallet extension (Preprod, funded) and a local proof server running
+to actually submit a transaction; without a connected wallet the page still loads and explains what's
+needed.
+
+---
+
+## Demo Video
+
+`TBD` — a screen recording of: connecting Lace, submitting a passing certificate (Lace approval
+prompts, real transaction ID), and the on-chain privacy proof panel.
 
 ---
 
