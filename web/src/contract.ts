@@ -117,7 +117,9 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
   }
 
   return {
-    privateStateProvider: inMemoryPrivateStateProvider<string, null>(),
+    // Type param is a placeholder object, not `null`, despite the contract's real
+    // PrivateState<C> being `null` — see the comment at findDeployedContract's call below.
+    privateStateProvider: inMemoryPrivateStateProvider<string, Record<string, never>>(),
     zkConfigProvider,
     proofProvider,
     publicDataProvider: indexerPublicDataProvider(indexerUri, indexerWsUri),
@@ -162,11 +164,17 @@ export async function callVerifyCertificate(
   const compiledContract = buildCompiledContract(input);
 
   console.log('[CertiProof] 4/5 joining deployed contract via findDeployedContract…');
+  // midnight-js-contracts' getStates() does `assertDefined(privateStateProvider.get(id))`,
+  // where assertDefined is a bare truthiness check (`if (!value) throw`) — so a legitimately
+  // `null` private state (this contract's actual type, since it uses no real private state,
+  // only witnesses) always fails that check even when correctly set. This contract's witness
+  // ignores whatever private state it's handed and always returns fresh values, so a truthy
+  // placeholder is functionally identical and sidesteps the library's overly-strict check.
   const deployed = await findDeployedContract(providers as any, {
     contractAddress: DEPLOYED_CONTRACT_ADDRESS,
     compiledContract,
     privateStateId: PRIVATE_STATE_ID,
-    initialPrivateState: null,
+    initialPrivateState: {},
   } as any);
   console.log('[CertiProof] joined contract at', (deployed as any).deployTxData?.public?.contractAddress);
 
