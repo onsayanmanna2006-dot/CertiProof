@@ -28,6 +28,11 @@ import { Contract, ledger, type Witnesses, type Ledger } from '../../managed/con
 import { BrowserZkConfigProvider } from './browserZkConfigProvider';
 import { inMemoryPrivateStateProvider } from './inMemoryPrivateStateProvider';
 
+// import.meta.env.BASE_URL reflects Vite's configured `base` (e.g. '/CertiProof/'
+// on GitHub Pages), so this resolves correctly whether served from the domain
+// root or a project-page subpath.
+const ZK_ASSETS_BASE_URL = `${window.location.origin}${import.meta.env.BASE_URL}managed`;
+
 // Deployed on Midnight Preview via `npm run deploy` (scripts/deploy.ts). See README "Contract Address".
 export const DEPLOYED_CONTRACT_ADDRESS = 'b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469';
 
@@ -71,12 +76,12 @@ function buildCompiledContract(input: StudentCertificateInput) {
   const withCompiledFileAssets = CompiledContract.withCompiledFileAssets as any;
   return (CompiledContract.make('certiproof', Contract) as any).pipe(
     (c: any) => withWitnesses(c, witnesses),
-    (c: any) => withCompiledFileAssets(c, `${window.location.origin}/managed`),
+    (c: any) => withCompiledFileAssets(c, ZK_ASSETS_BASE_URL),
   );
 }
 
 async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, proofServerUri: string) {
-  const zkConfigProvider = new BrowserZkConfigProvider(`${window.location.origin}/managed`);
+  const zkConfigProvider = new BrowserZkConfigProvider(ZK_ASSETS_BASE_URL);
   const { indexerUri, indexerWsUri } = await connectedAPI.getConfiguration();
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
 

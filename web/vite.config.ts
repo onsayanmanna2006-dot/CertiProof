@@ -3,6 +3,8 @@ import wasm from 'vite-plugin-wasm';
 
 export default defineConfig({
   root: import.meta.dirname,
+  // GitHub Pages serves this as a project page at /CertiProof/, not the domain root.
+  base: '/CertiProof/',
   plugins: [wasm()],
   build: {
     outDir: '../dist',
