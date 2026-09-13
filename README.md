@@ -189,8 +189,9 @@ npm test
 npm run dev:web
 ```
 Open the printed URL in a browser with the **Lace wallet extension** installed, connected to
-**Preview**, and funded (see faucet link below). You'll also need the local proof server running
-(step 4 under "Deployment", below) — the frontend calls the real deployed circuit, not a simulation.
+**Preview**, and funded (see faucet link below). Proving happens inside Lace itself
+(`connectedAPI.getProvingProvider`) — no local proof server needed for the web app; the frontend
+calls the real deployed circuit, not a simulation.
 
 ```bash
 npm run build:web   # production build to dist/, used by the GitHub Pages workflow
@@ -229,7 +230,7 @@ generates a real deployment proof via the local proof server, and submits the tr
 3. Run `npm run deploy` once to print the wallet's unshielded address, then fund it from the faucet:
    * Preview Faucet: [https://faucet.preview.midnight.network](https://faucet.preview.midnight.network)
    * Preprod Faucet: [https://faucet.preprod.midnight.network](https://faucet.preprod.midnight.network)
-4. Start the local proof server (required even for public testnets — it never sees your data on-chain, but it does see witness values in the clear locally):
+4. Start the local proof server — needed for `npm run deploy` specifically (a script the developer runs themselves against their own data); required even for public testnets since it sees witness values in the clear locally. Not needed for the web app (`web/`), which proves inside Lace instead — see "Run the Real Browser dApp" above:
    ```bash
    docker run -p 6300:6300 midnightnetwork/proof-server
    ```
@@ -270,9 +271,9 @@ fix/lighter sync mode, to complete.
 
 `https://onsayanmanna2006-dot.github.io/CertiProof/` — deployed automatically on every push to `main`
 via `.github/workflows/deploy-pages.yml`, which builds `web/` with Vite and publishes `dist/` to
-GitHub Pages. Requires the Lace wallet extension (Preview, funded) and a local proof server running
-to actually submit a transaction; without a connected wallet the page still loads and explains what's
-needed.
+GitHub Pages. Requires the Lace wallet extension (Preview, funded) to actually submit a transaction —
+proving happens inside Lace, no local proof server needed; without a connected wallet the page still
+loads and explains what's needed.
 
 ---
 

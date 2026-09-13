@@ -14,10 +14,19 @@
  * sync (crashed at ~2GB, then ~3.3GB, then ~5GB before OOMing) — see the
  * README's "Contract Address" section. Preview's deployment predates that
  * and is proven working, so the frontend targets it instead for now.
+ *
+ * Proving happens inside the connected wallet (connectedAPI.getProvingProvider),
+ * not via a proof server URL. This is deliberate, not just a convenience: a
+ * proof server sees witness values (marks/studentId/salt) in the clear (see
+ * README, "Deployment" section) — sending those to any server, local or
+ * remote, is fine for scripts/deploy.ts (a script the developer runs
+ * themselves, self-attesting their own data), but would be a real privacy
+ * regression for site visitors submitting their own certificate data. Lace
+ * proving keeps that data inside the visitor's own wallet instead.
  */
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js/contracts';
-import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
+import { createProofProvider } from '@midnight-ntwrk/midnight-js-types';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { toHex, fromHex } from '@midnight-ntwrk/midnight-js-utils';
 import { Transaction } from '@midnight-ntwrk/ledger-v8';
@@ -80,7 +89,7 @@ function buildCompiledContract(input: StudentCertificateInput) {
   );
 }
 
-async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, proofServerUri: string) {
+async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
   const zkConfigProvider = new BrowserZkConfigProvider(ZK_ASSETS_BASE_URL);
 
   const configuration = await connectedAPI.getConfiguration();
@@ -94,10 +103,23 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, pro
   const encryptionPublicKeyHex = bech32ToHex(shieldedAddresses.shieldedEncryptionPublicKey, networkId, 'encryption');
   console.log('[CertiProof] decoded coin/encryption public keys (hex):', { coinPublicKeyHex, encryptionPublicKeyHex });
 
+  console.log('[CertiProof] requesting a proving provider from the connected wallet (proving happens in Lace, not a remote server)…');
+  let proofProvider;
+  try {
+    const provingProvider = await connectedAPI.getProvingProvider(zkConfigProvider as any);
+    proofProvider = createProofProvider(provingProvider as any);
+  } catch (error) {
+    console.error('[CertiProof] Lace did not provide a proving provider:', error);
+    throw new Error(
+      'Your Lace wallet does not support in-wallet proving (getProvingProvider failed). ' +
+        'Update the Lace extension to the latest version and try again.',
+    );
+  }
+
   return {
     privateStateProvider: inMemoryPrivateStateProvider<string, null>(),
     zkConfigProvider,
-    proofProvider: httpClientProofProvider(proofServerUri, zkConfigProvider),
+    proofProvider,
     publicDataProvider: indexerPublicDataProvider(indexerUri, indexerWsUri),
     walletProvider: {
       getCoinPublicKey: () => coinPublicKeyHex,
@@ -125,12 +147,11 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string, pro
 export async function callVerifyCertificate(
   connectedAPI: ConnectedAPI,
   networkId: string,
-  proofServerUri: string,
   input: StudentCertificateInput,
 ) {
-  console.log('[CertiProof] 1/5 building providers…', { networkId, proofServerUri, contractAddress: DEPLOYED_CONTRACT_ADDRESS });
-  const providers = await buildProviders(connectedAPI, networkId, proofServerUri);
-  console.log('[CertiProof] 2/5 providers built. indexer/node come from the connected wallet\'s own getConfiguration().');
+  console.log('[CertiProof] 1/5 building providers…', { networkId, contractAddress: DEPLOYED_CONTRACT_ADDRESS });
+  const providers = await buildProviders(connectedAPI, networkId);
+  console.log('[CertiProof] 2/5 providers built. indexer/node/proving all come from the connected wallet.');
 
   console.log('[CertiProof] 3/5 building compiled contract with witness input:', {
     studentId: input.studentId,

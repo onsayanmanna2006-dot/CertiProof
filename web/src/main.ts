@@ -4,7 +4,6 @@ import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected,
 import { callVerifyCertificate, type StudentCertificateInput } from './contract';
 
 const NETWORK_ID = 'preview';
-const PROOF_SERVER_URI = (import.meta as any).env?.VITE_PROOF_SERVER_URI || 'http://127.0.0.1:6300';
 
 // --- Subtle hero seal parallax (decorative only) -----------------------
 (function initHeroParallax() {
@@ -269,7 +268,6 @@ function init() {
       const { certHash, txId, ledger: updatedLedger } = await callVerifyCertificate(
         connectedAPI,
         NETWORK_ID,
-        PROOF_SERVER_URI,
         input,
       );
 
