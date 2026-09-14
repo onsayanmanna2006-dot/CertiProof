@@ -32,10 +32,32 @@ import { toHex, fromHex } from '@midnight-ntwrk/midnight-js-utils';
 import { Transaction } from '@midnight-ntwrk/ledger-v8';
 import { MidnightBech32m, ShieldedCoinPublicKey, ShieldedEncryptionPublicKey } from '@midnight-ntwrk/wallet-sdk-address-format';
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
+import * as Cause from 'effect/Cause';
+import * as Runtime from 'effect/Runtime';
 
 import { Contract, ledger, type Witnesses, type Ledger } from '../../managed/contract/index.js';
 import { BrowserZkConfigProvider } from './browserZkConfigProvider';
 import { inMemoryPrivateStateProvider } from './inMemoryPrivateStateProvider';
+
+/**
+ * compact-js's promise-based API (CompiledContract, callTx.*) runs its
+ * transaction pipeline as an Effect internally, then converts it to a Promise
+ * for consumers who don't use Effect directly (us). Effect.runPromise always
+ * rejects with a `FiberFailure` on any unhandled failure — Fail or Die alike —
+ * because a `Cause` can carry more than a single JS error (parallel failures,
+ * interruption, etc). That means the real error we care about (e.g. a Lace
+ * DAppConnectorAPIError thrown from our own walletProvider.balanceTx) ends up
+ * hidden behind `FiberFailureCauseId` instead of being the rejection value
+ * itself. `Cause.squash` is Effect's own way of pulling the real defect/failure
+ * back out, so we use that rather than guessing at the wrapper's shape.
+ */
+function unwrapFiberFailure(error: unknown): unknown {
+  if (!Runtime.isFiberFailure(error)) return error;
+  const cause = (error as any)[Runtime.FiberFailureCauseId];
+  console.error('[CertiProof] Effect FiberFailure caught — pretty-printed cause:', Cause.pretty(cause));
+  console.error('[CertiProof] Effect FiberFailure — raw cause:', cause);
+  return unwrapFiberFailure(Cause.squash(cause));
+}
 
 // import.meta.env.BASE_URL reflects Vite's configured `base` (e.g. '/CertiProof/'
 // on GitHub Pages), so this resolves correctly whether served from the domain
@@ -128,10 +150,17 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
       getEncryptionPublicKey: () => encryptionPublicKeyHex,
       balanceTx: async (tx: any) => {
         console.log('[CertiProof] balanceTx: requesting Lace to balance the unsealed transaction (this should prompt Lace)…');
-        const serializedTx = toHex(tx.serialize());
-        const { tx: balancedHex } = await connectedAPI.balanceUnsealedTransaction(serializedTx);
-        console.log('[CertiProof] balanceTx: Lace returned a balanced transaction.');
-        return Transaction.deserialize('signature', 'proof', 'binding', fromHex(balancedHex));
+        try {
+          const serializedTx = toHex(tx.serialize());
+          const { tx: balancedHex } = await connectedAPI.balanceUnsealedTransaction(serializedTx);
+          console.log('[CertiProof] balanceTx: Lace returned a balanced transaction.');
+          return Transaction.deserialize('signature', 'proof', 'binding', fromHex(balancedHex));
+        } catch (rawError) {
+          const realError = unwrapFiberFailure(rawError);
+          console.error('[CertiProof] balanceTx failed. Raw error:', rawError);
+          console.error('[CertiProof] balanceTx failed. Unwrapped cause:', realError);
+          throw realError;
+        }
       },
     },
     midnightProvider: {
@@ -179,7 +208,16 @@ export async function callVerifyCertificate(
   console.log('[CertiProof] joined contract at', (deployed as any).deployTxData?.public?.contractAddress);
 
   console.log('[CertiProof] 5/5 calling verifyCertificate circuit (this runs the local witness, generates a proof, and — via the wallet provider — balances and submits the transaction)…');
-  const callResult = await (deployed as any).callTx.verifyCertificate();
+  let callResult: any;
+  try {
+    callResult = await (deployed as any).callTx.verifyCertificate();
+  } catch (rawError) {
+    // compact-js runs this whole call as an Effect internally and surfaces any
+    // failure as a FiberFailure — see unwrapFiberFailure's comment above. Without
+    // this, the real cause (e.g. a Lace error thrown from balanceTx) is hidden
+    // behind a Cause object instead of being the thing we actually catch here.
+    throw unwrapFiberFailure(rawError);
+  }
   const certHash: Uint8Array = callResult.private.result;
   const txId: string = callResult.public.txId;
   console.log('[CertiProof] verifyCertificate succeeded. txId:', txId);
