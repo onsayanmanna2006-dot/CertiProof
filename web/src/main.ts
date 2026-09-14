@@ -41,6 +41,36 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// midnight-js-contracts wraps every error thrown while submitting a transaction
+// (proveTx/balanceTx/submitTx) in a fresh `new Error(String(err), { cause: err })`
+// before it ever reaches us — see submitTx's catch block in
+// @midnight-ntwrk/midnight-js-contracts. That `String(err)` collapses a Lace
+// DAppConnectorAPIError down to just "Error", because Lace puts the actual
+// explanation in `.reason`, not `.message` — so the one piece of information
+// that would tell the user what to do gets thrown away unless we walk `.cause`
+// back to the original error object ourselves.
+interface WalletApiError {
+  type: 'DAppConnectorAPIError';
+  code?: string;
+  reason?: string;
+  message: string;
+}
+
+function isWalletApiErrorShape(value: unknown): value is WalletApiError {
+  return typeof value === 'object' && value !== null && (value as any).type === 'DAppConnectorAPIError';
+}
+
+function findWalletApiError(error: unknown): WalletApiError | undefined {
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current);
+    if (isWalletApiErrorShape(current)) return current;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return undefined;
+}
+
 function init() {
   setNetworkId(NETWORK_ID);
 
@@ -276,13 +306,27 @@ function init() {
       renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n);
     } catch (error) {
       console.error('[CertiProof] verifyCertificate failed:', error);
+      // Log the full cause chain — the top-level message is often just "Error"
+      // once midnight-js-contracts has re-wrapped the real Lace error (see
+      // findWalletApiError above), so the actual reason only shows up here.
+      let causeChain: unknown = error;
+      let depth = 0;
+      while (causeChain && typeof causeChain === 'object' && depth < 5) {
+        console.error(`[CertiProof]   cause[${depth}]:`, causeChain);
+        causeChain = (causeChain as { cause?: unknown }).cause;
+        depth += 1;
+      }
+
       const message = error instanceof Error ? error.message : String(error);
-      const isWalletApiError = typeof error === 'object' && error !== null && (error as any).type === 'DAppConnectorAPIError';
+      const walletApiError = findWalletApiError(error);
 
       if (message.includes('Student marks must be at least 60')) {
         renderCircuitRejected(message);
-      } else if (isWalletApiError) {
-        renderWalletActionNeeded((error as any).reason || message);
+      } else if (walletApiError) {
+        const detail = [walletApiError.code, walletApiError.reason || walletApiError.message]
+          .filter(Boolean)
+          .join(': ');
+        renderWalletActionNeeded(detail || message);
       } else {
         setWorkflow('circuit', { failedAt: 'circuit' });
         statusPill.className = 'status-indicator fail';
