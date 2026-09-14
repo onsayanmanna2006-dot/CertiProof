@@ -51,12 +51,71 @@ import { inMemoryPrivateStateProvider } from './inMemoryPrivateStateProvider';
  * itself. `Cause.squash` is Effect's own way of pulling the real defect/failure
  * back out, so we use that rather than guessing at the wrapper's shape.
  */
+// Error/Cause objects mostly carry their real content on non-enumerable
+// properties, so plain `JSON.stringify(err)` renders as "{}" and Chrome's
+// console shows a collapsed, unreadable object — this walks the exact spots
+// Effect and our own wrapping put the real payload and prints each explicitly.
+//
+// A `Cause`'s actual field is `.error` (see effect/Cause's `Fail<E>` type);
+// `failure` is only the key name its own `toJSON()` uses (`{ _tag: 'Fail',
+// failure: toJSON(this.error) }`) — which is exactly the shape Chrome's
+// console was showing. So: prefer a real `.toJSON()` call when the value is
+// Cause-shaped (matches what was seen on screen), falling back to `.failure`/
+// `.error` directly for anything else that happens to carry one of those.
+function toPlainJSON(value: unknown): unknown {
+  if (value && typeof (value as any).toJSON === 'function') {
+    return (value as any).toJSON();
+  }
+  return value;
+}
+
+function logFailureDetails(err: unknown): void {
+  const rawCause = (err as any)?.cause ?? err;
+  const causeJSON = toPlainJSON(rawCause) as any;
+  const failure =
+    causeJSON?.failure ?? causeJSON?.error ?? (err as any)?.cause?.failure ?? (err as any)?.failure;
+
+  console.error(
+    '[CertiProof] failure payload (JSON.stringify(..., null, 2)):',
+    JSON.stringify(failure, null, 2),
+  );
+  if (failure && typeof failure === 'object') {
+    const f = failure as Record<string, unknown>;
+    console.error('[CertiProof] failure.message:', f.message);
+    console.error('[CertiProof] failure.reason:', f.reason);
+    console.error('[CertiProof] failure.code:', f.code);
+    console.error('[CertiProof] failure.data:', f.data);
+  } else if (failure !== undefined) {
+    console.error('[CertiProof] failure (non-object):', failure);
+  }
+}
+
 function unwrapFiberFailure(error: unknown): unknown {
-  if (!Runtime.isFiberFailure(error)) return error;
-  const cause = (error as any)[Runtime.FiberFailureCauseId];
-  console.error('[CertiProof] Effect FiberFailure caught — pretty-printed cause:', Cause.pretty(cause));
-  console.error('[CertiProof] Effect FiberFailure — raw cause:', cause);
-  return unwrapFiberFailure(Cause.squash(cause));
+  if (Runtime.isFiberFailure(error)) {
+    const cause = (error as any)[Runtime.FiberFailureCauseId];
+    console.error('[CertiProof] Effect FiberFailure caught — pretty-printed cause:', Cause.pretty(cause));
+    console.error('[CertiProof] Effect FiberFailure — raw cause:', cause);
+    logFailureDetails({ cause });
+    return unwrapFiberFailure(Cause.squash(cause));
+  }
+
+  // Some layers (e.g. midnight-js-contracts' generic "Unexpected error ..."
+  // wrapper, which does `new Error(msg, { cause: err })`) attach a *bare*
+  // Effect Cause directly as a native Error's `.cause`, without ever routing
+  // it through Effect.runPromise — so it never becomes a FiberFailure and the
+  // check above misses it entirely. Detect that shape here too.
+  const attachedCause = (error as any)?.cause;
+  if (Cause.isCause(attachedCause)) {
+    console.error('[CertiProof] bare Effect Cause found on error.cause — pretty-printed:', Cause.pretty(attachedCause));
+    console.error('[CertiProof] bare Effect Cause — raw:', attachedCause);
+    logFailureDetails(error);
+    if (Cause.isFailType(attachedCause)) {
+      return unwrapFiberFailure(attachedCause.error);
+    }
+    return unwrapFiberFailure(Cause.squash(attachedCause));
+  }
+
+  return error;
 }
 
 // import.meta.env.BASE_URL reflects Vite's configured `base` (e.g. '/CertiProof/'
