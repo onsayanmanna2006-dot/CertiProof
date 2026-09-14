@@ -1,7 +1,7 @@
 import './polyfills';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
-import { callVerifyCertificate, type StudentCertificateInput } from './contract';
+import { callVerifyCertificate, VerifyCertificateError, type StudentCertificateInput } from './contract';
 
 const NETWORK_ID = 'preview';
 
@@ -41,34 +41,35 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// midnight-js-contracts wraps every error thrown while submitting a transaction
-// (proveTx/balanceTx/submitTx) in a fresh `new Error(String(err), { cause: err })`
-// before it ever reaches us — see submitTx's catch block in
-// @midnight-ntwrk/midnight-js-contracts. That `String(err)` collapses a Lace
-// DAppConnectorAPIError down to just "Error", because Lace puts the actual
-// explanation in `.reason`, not `.message` — so the one piece of information
-// that would tell the user what to do gets thrown away unless we walk `.cause`
-// back to the original error object ourselves.
-interface WalletApiError {
+// contract.ts's callVerifyCertificate throws VerifyCertificateError with an
+// already fully-unwrapped `.failure` (see unwrapToRealFailure there) — no
+// need to re-derive it here from an opaque wrapped message or walk `.cause`
+// ourselves. We just need to recognize the specific failure shapes worth a
+// tailored message.
+interface WalletApiFailure {
   type: 'DAppConnectorAPIError';
   code?: string;
   reason?: string;
-  message: string;
+  message?: string;
 }
 
-function isWalletApiErrorShape(value: unknown): value is WalletApiError {
+function isWalletApiFailure(value: unknown): value is WalletApiFailure {
   return typeof value === 'object' && value !== null && (value as any).type === 'DAppConnectorAPIError';
 }
 
-function findWalletApiError(error: unknown): WalletApiError | undefined {
-  const seen = new Set<unknown>();
-  let current: unknown = error;
-  while (current && typeof current === 'object' && !seen.has(current)) {
-    seen.add(current);
-    if (isWalletApiErrorShape(current)) return current;
-    current = (current as { cause?: unknown }).cause;
-  }
-  return undefined;
+interface InsufficientFundsFailure {
+  _tag: string; // e.g. 'Wallet.InsufficientFunds'
+  message?: string;
+  tokenType?: string;
+}
+
+function isInsufficientFundsFailure(value: unknown): value is InsufficientFundsFailure {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as any)._tag === 'string' &&
+    (value as any)._tag.includes('InsufficientFunds')
+  );
 }
 
 function init() {
@@ -306,26 +307,24 @@ function init() {
       renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n);
     } catch (error) {
       console.error('[CertiProof] verifyCertificate failed:', error);
-      // Log the full cause chain — the top-level message is often just "Error"
-      // once midnight-js-contracts has re-wrapped the real Lace error (see
-      // findWalletApiError above), so the actual reason only shows up here.
-      let causeChain: unknown = error;
-      let depth = 0;
-      while (causeChain && typeof causeChain === 'object' && depth < 5) {
-        console.error(`[CertiProof]   cause[${depth}]:`, causeChain);
-        causeChain = (causeChain as { cause?: unknown }).cause;
-        depth += 1;
-      }
 
+      // contract.ts already fully unwraps FiberFailure/Cause/wrapper layers
+      // (see unwrapToRealFailure) before throwing VerifyCertificateError, so
+      // `.failure` here is the real, structured failure — no re-derivation.
+      const failure = error instanceof VerifyCertificateError ? error.failure : error;
       const message = error instanceof Error ? error.message : String(error);
-      const walletApiError = findWalletApiError(error);
 
       if (message.includes('Student marks must be at least 60')) {
         renderCircuitRejected(message);
-      } else if (walletApiError) {
-        const detail = [walletApiError.code, walletApiError.reason || walletApiError.message]
-          .filter(Boolean)
-          .join(': ');
+      } else if (isInsufficientFundsFailure(failure)) {
+        const token = (failure.tokenType || 'funds').toUpperCase();
+        renderWalletActionNeeded(
+          `Insufficient ${token} to pay transaction fees` +
+            (failure.message ? `: ${failure.message}` : '.') +
+            ' DUST accrues automatically over time from NIGHT you hold — check your DUST balance in Lace and retry once it\'s non-zero.',
+        );
+      } else if (isWalletApiFailure(failure)) {
+        const detail = [failure.code, failure.reason || failure.message].filter(Boolean).join(': ');
         renderWalletActionNeeded(detail || message);
       } else {
         setWorkflow('circuit', { failedAt: 'circuit' });

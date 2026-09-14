@@ -90,32 +90,75 @@ function logFailureDetails(err: unknown): void {
   }
 }
 
-function unwrapFiberFailure(error: unknown): unknown {
+/**
+ * Fully unwraps every layer this SDK stack can wrap a real failure in, down
+ * to the terminal value a UI can actually branch on — e.g. a Lace
+ * `DAppConnectorAPIError` (`{ type: 'DAppConnectorAPIError', reason, code }`)
+ * or an Effect-tagged domain error (`{ _tag: 'Wallet.InsufficientFunds',
+ * message, tokenType }`). The layers, outermost first:
+ *  1. midnight-js-contracts' generic `new Error(String(err), { cause: err })`
+ *     wrapper around the whole proveTx/balanceTx/submitTx pipeline — its
+ *     `String(err)` collapses anything interesting, but `.cause` keeps it.
+ *  2. Effect's `FiberFailure`, which `Effect.runPromise` produces on *any*
+ *     unhandled failure (real cause behind the `FiberFailureCauseId` symbol).
+ *  3. A bare Effect `Cause`, when some layer attaches one directly as a
+ *     native Error's `.cause` without ever going through `Effect.runPromise`.
+ * Recurses until none of the three apply, logging each layer as it's peeled
+ * off so the console shows the full chain, not just the outermost text.
+ */
+function unwrapToRealFailure(error: unknown, depth = 0): unknown {
+  if (depth > 12) return error; // guard against an unexpected cycle
+
   if (Runtime.isFiberFailure(error)) {
     const cause = (error as any)[Runtime.FiberFailureCauseId];
-    console.error('[CertiProof] Effect FiberFailure caught — pretty-printed cause:', Cause.pretty(cause));
-    console.error('[CertiProof] Effect FiberFailure — raw cause:', cause);
+    console.error(`[CertiProof] unwrap[${depth}]: FiberFailure — pretty cause:`, Cause.pretty(cause));
     logFailureDetails({ cause });
-    return unwrapFiberFailure(Cause.squash(cause));
+    return unwrapToRealFailure(Cause.squash(cause), depth + 1);
   }
 
-  // Some layers (e.g. midnight-js-contracts' generic "Unexpected error ..."
-  // wrapper, which does `new Error(msg, { cause: err })`) attach a *bare*
-  // Effect Cause directly as a native Error's `.cause`, without ever routing
-  // it through Effect.runPromise — so it never becomes a FiberFailure and the
-  // check above misses it entirely. Detect that shape here too.
-  const attachedCause = (error as any)?.cause;
-  if (Cause.isCause(attachedCause)) {
-    console.error('[CertiProof] bare Effect Cause found on error.cause — pretty-printed:', Cause.pretty(attachedCause));
-    console.error('[CertiProof] bare Effect Cause — raw:', attachedCause);
+  if (Cause.isCause(error)) {
+    console.error(`[CertiProof] unwrap[${depth}]: bare Effect Cause — pretty:`, Cause.pretty(error));
+    if (Cause.isFailType(error)) return unwrapToRealFailure(error.error, depth + 1);
+    return unwrapToRealFailure(Cause.squash(error), depth + 1);
+  }
+
+  const attachedCause = typeof error === 'object' && error !== null ? (error as any).cause : undefined;
+  if (attachedCause !== undefined && attachedCause !== null) {
+    console.error(`[CertiProof] unwrap[${depth}]: descending into .cause of`, error);
     logFailureDetails(error);
-    if (Cause.isFailType(attachedCause)) {
-      return unwrapFiberFailure(attachedCause.error);
-    }
-    return unwrapFiberFailure(Cause.squash(attachedCause));
+    return unwrapToRealFailure(attachedCause, depth + 1);
   }
 
   return error;
+}
+
+/**
+ * Thrown by callVerifyCertificate once the real failure has been fully
+ * unwrapped (see unwrapToRealFailure) — carries the clean, structured
+ * `failure` value (e.g. a DAppConnectorAPIError or a Wallet.InsufficientFunds
+ * tag) so main.ts can branch on it directly instead of re-deriving it from an
+ * opaque "Unexpected error submitting scoped transaction ...: Error" message.
+ */
+export class VerifyCertificateError extends Error {
+  readonly failure: unknown;
+  readonly rawError: unknown;
+
+  constructor(failure: unknown, rawError: unknown) {
+    super(VerifyCertificateError.describe(failure));
+    this.name = 'VerifyCertificateError';
+    this.failure = failure;
+    this.rawError = rawError;
+  }
+
+  private static describe(failure: unknown): string {
+    if (failure && typeof failure === 'object') {
+      const f = failure as Record<string, unknown>;
+      if (typeof f.message === 'string' && f.message) return f.message;
+      if (typeof f.reason === 'string' && f.reason) return f.reason;
+    }
+    if (failure instanceof Error) return failure.message;
+    return String(failure);
+  }
 }
 
 // import.meta.env.BASE_URL reflects Vite's configured `base` (e.g. '/CertiProof/'
@@ -215,10 +258,12 @@ async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
           console.log('[CertiProof] balanceTx: Lace returned a balanced transaction.');
           return Transaction.deserialize('signature', 'proof', 'binding', fromHex(balancedHex));
         } catch (rawError) {
-          const realError = unwrapFiberFailure(rawError);
+          // Log at the source, closest to Lace, before this propagates back
+          // through midnight-js-contracts' own wrapping — the full, definitive
+          // unwrap happens once in callVerifyCertificate's catch below.
           console.error('[CertiProof] balanceTx failed. Raw error:', rawError);
-          console.error('[CertiProof] balanceTx failed. Unwrapped cause:', realError);
-          throw realError;
+          logFailureDetails(rawError);
+          throw rawError;
         }
       },
     },
@@ -271,11 +316,9 @@ export async function callVerifyCertificate(
   try {
     callResult = await (deployed as any).callTx.verifyCertificate();
   } catch (rawError) {
-    // compact-js runs this whole call as an Effect internally and surfaces any
-    // failure as a FiberFailure — see unwrapFiberFailure's comment above. Without
-    // this, the real cause (e.g. a Lace error thrown from balanceTx) is hidden
-    // behind a Cause object instead of being the thing we actually catch here.
-    throw unwrapFiberFailure(rawError);
+    const realFailure = unwrapToRealFailure(rawError);
+    console.error('[CertiProof] verifyCertificate — final unwrapped failure:', realFailure);
+    throw new VerifyCertificateError(realFailure, rawError);
   }
   const certHash: Uint8Array = callResult.private.result;
   const txId: string = callResult.public.txId;
