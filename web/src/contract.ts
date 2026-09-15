@@ -192,7 +192,7 @@ function bech32ToHex(bech32Address: string, networkId: string, kind: 'coin' | 'e
   return ShieldedEncryptionPublicKey.codec.decode(networkId, parsed).toHexString();
 }
 
-function buildCompiledContract(input: StudentCertificateInput) {
+export function buildCompiledContract(input: StudentCertificateInput) {
   const witnesses: Witnesses<null> = {
     getStudentCertificate: (context) => [
       context.privateState,
@@ -213,7 +213,7 @@ function buildCompiledContract(input: StudentCertificateInput) {
   );
 }
 
-async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
+export async function buildProviders(connectedAPI: ConnectedAPI, networkId: string) {
   const zkConfigProvider = new BrowserZkConfigProvider(ZK_ASSETS_BASE_URL);
 
   const configuration = await connectedAPI.getConfiguration();

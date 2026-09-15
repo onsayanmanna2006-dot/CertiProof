@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CertiProof — Deploy to Preprod (dev tool)</title>
+  <style>
+    body {
+      background: #0b0d12;
+      color: #e6e8ee;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      max-width: 760px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.5;
+    }
+    h1 { font-size: 1.25rem; }
+    p.warn {
+      background: #2a1c0c;
+      border: 1px solid #6b4a12;
+      color: #f0b93d;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+    }
+    button {
+      background: #6d5ef5;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #log {
+      background: #14171f;
+      border: 1px solid #262b38;
+      border-radius: 6px;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 0.85rem;
+      min-height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CertiProof — one-off Preprod deployment (dev tool, not part of the public demo)</h1>
+  <p class="warn">
+    Not linked from the main app and not shipped to the GitHub Pages build (only <code>index.html</code>
+    is built for production — this page only exists in <code>npm run dev:web</code>). Requires Lace switched
+    to the <strong>Preprod</strong> network with a funded address. Deploys a fresh contract instance by proving
+    and submitting entirely inside Lace — no local wallet sync, so it doesn't hit the Node OOM issue.
+  </p>
+  <button type="button" id="connect-btn">Connect Lace (Preprod)</button>
+  <button type="button" id="deploy-btn" disabled>Deploy Contract</button>
+  <div id="log">Not connected.</div>
+
+  <script type="module" src="/src/deployPreprod.ts"></script>
+</body>
+</html>
