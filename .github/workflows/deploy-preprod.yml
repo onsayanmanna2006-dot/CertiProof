@@ -48,7 +48,10 @@ jobs:
 
       - name: Deploy contract to Preprod
         id: deploy
-        run: npm run deploy | tee deploy-output.log
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run deploy 2>&1 | tee deploy-output.log
 
       - name: Extract contract address into job summary
         if: always()
