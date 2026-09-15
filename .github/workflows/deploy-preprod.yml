@@ -46,6 +46,11 @@ jobs:
           echo "Proof server did not become ready in time" >&2
           exit 1
 
+      - name: Check WALLET_SEED_HEX is set correctly
+        run: |
+          echo "Length of WALLET_SEED_HEX: ${#WALLET_SEED_HEX}"
+          echo "(should be 64; anything else means the GitHub secret's value is wrong)"
+
       - name: Deploy contract to Preprod
         id: deploy
         shell: bash
