@@ -1,0 +1,68 @@
+name: Deploy to Preprod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    services:
+      proof-server:
+        image: midnightnetwork/proof-server
+        ports:
+          - 6300:6300
+
+    env:
+      MIDNIGHT_NETWORK: preprod
+      WALLET_SEED_HEX: ${{ secrets.WALLET_SEED_HEX }}
+      # Runner has 16GB RAM; give Node most of it (leaves headroom for the
+      # proof-server service container and OS). Preprod's fuller chain
+      # history is what OOM'd a local 8GB machine during wallet sync.
+      NODE_OPTIONS: --max-old-space-size=12288
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for proof server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:6300 -o /dev/null; then
+              echo "Proof server is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Proof server did not become ready in time" >&2
+          exit 1
+
+      - name: Deploy contract to Preprod
+        id: deploy
+        run: npm run deploy | tee deploy-output.log
+
+      - name: Extract contract address into job summary
+        if: always()
+        run: |
+          {
+            echo "## Preprod deployment output"
+            echo '```'
+            cat deploy-output.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload deployment log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preprod-deploy-log
+          path: deploy-output.log

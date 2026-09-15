@@ -265,6 +265,15 @@ this machine's 8GB of total RAM. Reproducible via the same `Deployment` steps ab
 `MIDNIGHT_NETWORK=preprod`; likely needs either a machine with substantially more RAM, or an SDK
 fix/lighter sync mode, to complete.
 
+**Workaround: deploy via GitHub Actions.** `.github/workflows/deploy-preprod.yml` runs the same
+`npm run deploy` flow on a GitHub-hosted runner (16GB RAM, vs. 8GB locally), with a `proof-server`
+service container standing in for the local Docker proof server. To use it:
+1. Add your funded Preprod wallet seed as a repository secret named `WALLET_SEED_HEX` (Settings →
+   Secrets and variables → Actions → New repository secret).
+2. Trigger the workflow manually from the Actions tab (`Deploy to Preprod` → Run workflow).
+3. The deployed contract address and transaction ID are printed in the job summary and in the
+   uploaded `preprod-deploy-log` artifact.
+
 ---
 
 ## Live Demo
