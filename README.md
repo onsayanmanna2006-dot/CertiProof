@@ -1,5 +1,7 @@
 # CertiProof
 
+[![CI](https://github.com/onsayanmanna2006-dot/CertiProof/actions/workflows/ci.yml/badge.svg)](https://github.com/onsayanmanna2006-dot/CertiProof/actions/workflows/ci.yml)
+
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
 Built with Midnight's **Compact language** (toolchain `0.30.0`, language `0.22.0`, ledger `8.0.2`, compact-runtime `0.15.0`), zero-knowledge circuits, private witnesses, and controlled disclosure (`disclose()`).
@@ -67,6 +69,29 @@ Student enters private certificate information (ID, Marks, Salt)
 | **Certificate salt / entropy** | **Private** | High-entropy blinding factor preventing brute-force dictionary pre-image attacks. |
 
 Zero-knowledge verification allows the system to verify a statement without unnecessarily revealing the underlying private information.
+
+---
+
+## Privacy Model
+
+CertiProof's entire value proposition rests on what a third-party observer — anyone reading the public Midnight ledger, an indexer, a block explorer, or an employer given only the certificate hash — can and cannot learn.
+
+### What an observer CAN learn
+
+* **That a specific credential passed verification.** Given a `certHash`, the observer can query `verifiedCertificates[certHash]` and see `true`.
+* **That the credential meets the qualification bar.** Because `assert(cert.marks >= 60, ...)` runs inside the ZK circuit before any disclosure, a `true` entry is cryptographic proof the underlying (hidden) marks satisfied `marks >= 60` — no partial or approximate score leaks.
+* **The total number of credentials verified system-wide**, via the public `totalVerified` counter.
+* **The existence and timing of the verification transaction** (transaction ID, block, gas/fee), since Midnight's ledger structure, like other blockchains, exposes transaction metadata.
+
+### What an observer CANNOT learn
+
+* **The student's exact marks.** `cert.marks` never leaves the private witness; it is consumed only inside the circuit's constraint check and is never passed to `disclose()`.
+* **The student's identity.** `cert.studentId` stays private — the public ledger only ever sees the opaque `certHash`, which cannot be reversed to recover the student ID without already knowing the private salt.
+* **The specific subject/course.** `cert.subjectId` is likewise private and never disclosed.
+* **Whether a *failing* attempt was ever made.** A circuit call that fails the `assert` never reaches the disclosure step, so there is no on-chain record correlating a student with an unqualified attempt.
+* **A pre-image of `certHash` via brute force.** `cert.salt` is a high-entropy blinding factor mixed into `persistentHash<StudentCertificate>(cert)`, so an observer cannot dictionary-attack plausible `(studentId, subjectId, marks)` triples to match a given public hash.
+
+In short: the chain proves *"someone met the bar"* and gives that claim a stable public identifier, without ever revealing *who* or *by how much*.
 
 ---
 
@@ -323,6 +348,11 @@ Placeholders for capture outputs (see `screenshots/README.md`):
 
 ### Contract Deployment
 ![Contract Deployment](screenshots/deployment.png)
+
+### Test Suite (3+ Tests Passing)
+![Test Suite Output](screenshots/test-success.png)
+
+*Capture with `npm test`, which currently reports 12/12 tests passing across `tests/CertiProof.test.ts` and `tests/CertificateVerifier.test.ts`.*
 
 ---
 
