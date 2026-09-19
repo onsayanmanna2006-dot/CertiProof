@@ -308,8 +308,9 @@ loads and explains what's needed.
 
 ## Demo Video
 
-`TBD` — a screen recording of: connecting Lace, submitting a passing certificate (Lace approval
-prompts, real transaction ID), and the on-chain privacy proof panel.
+[https://youtu.be/_aA2fj_iEwo](https://youtu.be/_aA2fj_iEwo) — a screen recording of: connecting
+Lace, submitting a passing certificate (Lace approval prompts, real transaction ID), and the
+on-chain privacy proof panel.
 
 ---
 
