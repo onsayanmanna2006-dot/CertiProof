@@ -106,7 +106,7 @@ function logFailureDetails(err: unknown): void {
  * Recurses until none of the three apply, logging each layer as it's peeled
  * off so the console shows the full chain, not just the outermost text.
  */
-function unwrapToRealFailure(error: unknown, depth = 0): unknown {
+export function unwrapToRealFailure(error: unknown, depth = 0): unknown {
   if (depth > 12) return error; // guard against an unexpected cycle
 
   if (Runtime.isFiberFailure(error)) {

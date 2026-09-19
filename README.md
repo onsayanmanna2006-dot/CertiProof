@@ -252,27 +252,47 @@ generates a real deployment proof via the local proof server, and submits the tr
 
 Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above.
 
-### Preprod: attempted, currently blocked on this machine
+### Preprod
 
-A funded Preprod wallet was used to attempt `MIDNIGHT_NETWORK=preprod npm run deploy` three times.
-Each attempt hit **unbounded memory growth during wallet sync** (`wallet-sdk-shielded`/
-`wallet-sdk-dust-wallet`'s `Sync` path) and crashed with a JavaScript heap OOM — at ~2GB with
-Node's default heap, then ~3.3GB with an 4GB heap limit, then ~5GB with a 6GB limit. Each retry
-crashed higher, not at a fixed point, which points to a real memory-growth issue in this SDK
-generation's Preprod wallet sync (possibly Preprod's larger chain history) rather than a one-off
-resource shortfall — so simply raising the heap further wasn't pursued past that, especially on
-this machine's 8GB of total RAM. Reproducible via the same `Deployment` steps above with
-`MIDNIGHT_NETWORK=preprod`; likely needs either a machine with substantially more RAM, or an SDK
-fix/lighter sync mode, to complete.
+**Deployed:**
 
-**Workaround: deploy via GitHub Actions.** `.github/workflows/deploy-preprod.yml` runs the same
-`npm run deploy` flow on a GitHub-hosted runner (16GB RAM, vs. 8GB locally), with a `proof-server`
-service container standing in for the local Docker proof server. To use it:
-1. Add your funded Preprod wallet seed as a repository secret named `WALLET_SEED_HEX` (Settings →
-   Secrets and variables → Actions → New repository secret).
-2. Trigger the workflow manually from the Actions tab (`Deploy to Preprod` → Run workflow).
-3. The deployed contract address and transaction ID are printed in the job summary and in the
-   uploaded `preprod-deploy-log` artifact.
+* **Contract address:** `d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440621956752`
+* **Transaction ID:** `00b70dd5bcc0475c8721ea8dd5461b5e39451bac6f7bffbc70b6473fc59bc2e332`
+
+Verifiable on-chain via the Preprod indexer/explorer.
+
+**How it got deployed — a standalone Node wallet never worked for this:**
+
+A headless Node wallet (`scripts/deploy.ts`, the same approach used for the Preview deployment
+above) hit **unbounded memory growth during wallet sync** against Preprod's chain history, every
+time it was tried:
+* Locally (8GB RAM): crashed at ~2GB, then ~3.3GB, then ~5GB across three attempts with
+  increasing heap limits — never converging, just crashing higher each time.
+* On a GitHub Actions runner (16GB RAM, via `.github/workflows/deploy-preprod.yml`, which runs
+  the same `npm run deploy` flow with a `proof-server` service container standing in for the
+  local Docker proof server): ran for **33 minutes**, grew to **~10GB**, and still hadn't finished
+  syncing before hitting the same OOM.
+
+Growing the heap only delayed the crash, never fixed it — confirming this is a real bug in this
+SDK generation's Preprod wallet sync (`wallet-sdk-shielded`/`wallet-sdk-dust-wallet`), not a
+resource shortfall. `.github/workflows/deploy-preprod.yml` is left in the repo as-is (still useful
+for Preview-scale networks) but isn't how the Preprod deployment above actually happened.
+
+**What worked instead:** `web/deploy-preprod.html` + `web/src/deployPreprod.ts` — a small dev-only
+page that deploys by proving and submitting entirely inside a connected browser wallet, the same
+technique `web/src/contract.ts` already uses for circuit calls. This sidesteps the problem
+entirely: the wallet extension syncs its own state to show a balance anyway, so there's no separate
+Node wallet sync to OOM. Not part of the public demo (not linked from `index.html`, not built for
+GitHub Pages — only reachable via `npm run dev:web`).
+
+Getting this working also surfaced a **separate, unrelated bug**: Lace wasn't generating DUST
+(Midnight's fee token) from held NIGHT on Preprod at all — confirmed against multiple independent
+reports of the same issue, DUST balance stayed at a genuine `0` cap (not just `0` balance) after
+holding funded NIGHT for 3+ days. Switching to the **1AM wallet** (also DApp-Connector-compatible,
+so `deploy-preprod.html` needed no code changes) worked immediately — its explicit "Generate DUST"
+registration step is functionally the same as `scripts/deploy.ts`'s
+`registerNightUtxosForDustGeneration` call, just exposed in the UI where Lace didn't expose an
+equivalent for Preprod.
 
 ---
 

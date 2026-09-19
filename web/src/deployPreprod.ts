@@ -19,7 +19,7 @@ import './polyfills';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { deployContract } from '@midnight-ntwrk/midnight-js/contracts';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
-import { buildProviders, buildCompiledContract, PRIVATE_STATE_ID } from './contract';
+import { buildProviders, buildCompiledContract, PRIVATE_STATE_ID, unwrapToRealFailure } from './contract';
 
 const NETWORK_ID = 'preprod';
 
@@ -95,8 +95,17 @@ function init() {
       log(`Transaction ID:   ${txId}`);
       log('Copy the contract address above into README.md and web/src/contract.ts if you want the public demo to target this deployment.');
     } catch (error) {
-      log(`ERROR: ${error instanceof Error ? error.message : String(error)}`);
+      const realFailure = unwrapToRealFailure(error);
+      const message =
+        realFailure && typeof realFailure === 'object'
+          ? JSON.stringify(realFailure, null, 2)
+          : String(realFailure);
+      log(`ERROR (unwrapped): ${message}`);
+      if (error instanceof Error && error.message) {
+        log(`ERROR (outer .message, for context): ${error.message}`);
+      }
       console.error('[deploy-preprod] full error:', error);
+      console.error('[deploy-preprod] unwrapped failure:', realFailure);
     } finally {
       deployBtn.disabled = false;
     }
