@@ -23,3 +23,6 @@ midnight-level-db/
 
 # Keep compiled circuits and keys in Git as required
 !managed/
+
+# Raw feedback-form responses (may contain testers' personal details); only USERS.md is published
+users/*.csv

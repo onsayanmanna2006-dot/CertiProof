@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "deploy": "tsx scripts/deploy.ts",
+    "users": "tsx scripts/verify-users.ts",
     "dev:web": "vite --config web/vite.config.ts",
     "build:web": "vite build --config web/vite.config.ts"
   },
