@@ -4,6 +4,12 @@
 
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
+> **Note for reviewers — wallet:** The live demo runs on **Preprod** and was tested with the
+> **1AM wallet** (Chrome extension). I'm using the 1AM wallet because Lace doesn't generate DUST
+> (Midnight's fee token) on Preprod yet, so Lace can't pay transaction fees there. The dApp itself
+> isn't tied to 1AM — it works with any Midnight DApp-Connector wallet, including Lace once that
+> issue is fixed. Details in [Contract Address](#contract-address).
+
 Built with Midnight's **Compact language** (toolchain `0.30.0`, language `0.22.0`, ledger `8.0.2`, compact-runtime `0.15.0`), zero-knowledge circuits, private witnesses, and controlled disclosure (`disclose()`).
 
 > **Why toolchain 0.30.0?** This is the newest Compact toolchain whose generated `compact-runtime` version (`0.15.0`) has a matching, non-beta `midnight-js` deployment SDK release (`@midnight-ntwrk/midnight-js@4.0.4`) — the same combination used by Midnight's own actively-maintained [`example-counter`](https://github.com/midnightntwrk/example-counter) reference app. The newest toolchain (`0.34.0`) targets `compact-runtime@0.19.0`, which currently only has a pre-release (`5.0.0-beta.x`) JS SDK — riskier for a real deployment.
