@@ -24,7 +24,7 @@ Open the 1AM wallet tab and leave it open until it stops showing "Initializing�
 
 **4. Get free test tokens (NIGHT) and turn on DUST**
 Midnight transactions pay fees in **DUST**, which a wallet generates from the **NIGHT** tokens it holds. On Preprod both are free test tokens.
-1. In 1AM, click **Receive** and copy your address (it starts with `mn_addr_preprod1…`).
+1. In 1AM, click **Receive** and click **COPY** next to **UNSHIELDED**: the address that starts with `mn_addr_preprod1…`. (Not the Shielded, Dust or Cardano ones.)
 2. Go to **https://faucet.preprod.midnight.network**, paste the address, and request tokens.
 3. Back in 1AM, wait until the NIGHT balance shows up, then click **Generate DUST** (or "Register for DUST") and approve.
 4. Wait a few minutes until your **DUST balance is above 0**.
