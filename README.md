@@ -4,6 +4,8 @@
 
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
+**🔗 Links:** [Live demo (Preprod)](https://onsayanmanna2006-dot.github.io/CertiProof/) · [X / Twitter: @sayanmanna2st](https://x.com/sayanmanna2st) · [Demo video](https://youtu.be/_aA2fj_iEwo)
+
 > **Note for reviewers — wallet:** The live demo runs on **Preprod** and was tested with the
 > **1AM wallet** (Chrome extension). I'm using the 1AM wallet because Lace doesn't generate DUST
 > (Midnight's fee token) on Preprod yet, so Lace can't pay transaction fees there. The dApp itself
@@ -366,6 +368,12 @@ Placeholders for capture outputs (see `screenshots/README.md`):
 ![Test Suite Output](screenshots/test-success.png)
 
 *Capture with `npm test`, which currently reports 12/12 tests passing across `tests/CertiProof.test.ts` and `tests/CertificateVerifier.test.ts`.*
+
+---
+
+## Community
+
+Follow CertiProof on X: **[@sayanmanna2st](https://x.com/sayanmanna2st)**
 
 ---
 
