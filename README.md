@@ -213,10 +213,12 @@ npm test
 ```bash
 npm run dev:web
 ```
-Open the printed URL in a browser with the **Lace wallet extension** installed, connected to
-**Preview**, and funded (see faucet link below). Proving happens inside Lace itself
+Open the printed URL in a browser with a Midnight DApp-Connector wallet installed (the **1AM
+wallet** is recommended), connected to **Preprod**, funded from the Preprod faucet, and with DUST
+generation registered (see faucet link below). Proving happens inside the wallet itself
 (`connectedAPI.getProvingProvider`) — no local proof server needed for the web app; the frontend
-calls the real deployed circuit, not a simulation.
+calls the real deployed circuit, not a simulation. (Lace currently doesn't generate DUST on
+Preprod — see "Contract Address" below.)
 
 ```bash
 npm run build:web   # production build to dist/, used by the GitHub Pages workflow
@@ -270,21 +272,17 @@ generates a real deployment proof via the local proof server, and submits the tr
 
 ## Contract Address
 
-**Deployed on Midnight Preview** (this is what the live demo and web dApp target):
-
-* **Contract address:** `b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469`
-* **Transaction ID:** `00ee7f921068aefefe44573aae98362c8d9332996172db63f0053aac44494b3934`
-
-Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above.
-
-### Preprod
-
-**Deployed:**
+### Preprod (live demo target)
 
 * **Contract address:** `d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440621956752`
 * **Transaction ID:** `00b70dd5bcc0475c8721ea8dd5461b5e39451bac6f7bffbc70b6473fc59bc2e332`
 
-Verifiable on-chain via the Preprod indexer/explorer.
+This is the contract the live demo and web dApp call. Verifiable on-chain via the Preprod indexer/explorer.
+
+**Verified live from the web dApp on Preprod** (1AM wallet, marks = 78):
+
+* **`verifyCertificate` transaction ID:** `0046420f1ab53cd886a6deb805a9dac8efa05279397131dc437257db187bbbc31b`
+* **Disclosed certificate hash:** `0xcc7021b2eeb1f612606eaba292a203ca1bd0e5b65c0503f0528e2d4adeb980d1`
 
 **How it got deployed — a standalone Node wallet never worked for this:**
 
@@ -319,15 +317,24 @@ registration step is functionally the same as `scripts/deploy.ts`'s
 `registerNightUtxosForDustGeneration` call, just exposed in the UI where Lace didn't expose an
 equivalent for Preprod.
 
+### Preview (earlier deployment)
+
+* **Contract address:** `b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469`
+* **Transaction ID:** `00ee7f921068aefefe44573aae98362c8d9332996172db63f0053aac44494b3934`
+
+Deployed via `npm run deploy` using the real Midnight SDK deployment flow described above. The demo
+targeted this contract before the Preprod deployment existed.
+
 ---
 
 ## Live Demo
 
 `https://onsayanmanna2006-dot.github.io/CertiProof/` — deployed automatically on every push to `main`
 via `.github/workflows/deploy-pages.yml`, which builds `web/` with Vite and publishes `dist/` to
-GitHub Pages. Requires the Lace wallet extension (Preview, funded) to actually submit a transaction —
-proving happens inside Lace, no local proof server needed; without a connected wallet the page still
-loads and explains what's needed.
+GitHub Pages. Runs against the **Preprod** contract above. Requires a Midnight wallet extension
+(1AM recommended — connected to Preprod, funded, with DUST generation registered) to actually
+submit a transaction — proving happens inside the wallet, no local proof server needed; without a
+connected wallet the page still loads and explains what's needed.
 
 ---
 

@@ -20,7 +20,7 @@ declare global {
 
 export class WalletNotFoundError extends Error {
   constructor() {
-    super('Could not find the Midnight Lace wallet. Is the extension installed and enabled?');
+    super('Could not find a Midnight wallet (e.g. 1AM or Lace). Is the extension installed and enabled?');
     this.name = 'WalletNotFoundError';
   }
 }

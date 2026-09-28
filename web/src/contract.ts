@@ -9,11 +9,9 @@
  * same providers bag shape, just backed by Lace instead of a headless
  * seed-derived wallet.
  *
- * Targets Preview, not Preprod: three attempts to deploy fresh to Preprod
- * from this machine (8GB RAM) hit unbounded memory growth during wallet
- * sync (crashed at ~2GB, then ~3.3GB, then ~5GB before OOMing) — see the
- * README's "Contract Address" section. Preview's deployment predates that
- * and is proven working, so the frontend targets it instead for now.
+ * Targets Preprod. The Preprod contract was deployed from inside a browser
+ * wallet (web/deploy-preprod.html) because a headless Node wallet OOMs
+ * during Preprod sync — see the README's "Contract Address" section.
  *
  * Proving happens inside the connected wallet (connectedAPI.getProvingProvider),
  * not via a proof server URL. This is deliberate, not just a convenience: a
@@ -166,8 +164,8 @@ export class VerifyCertificateError extends Error {
 // root or a project-page subpath.
 const ZK_ASSETS_BASE_URL = `${window.location.origin}${import.meta.env.BASE_URL}managed`;
 
-// Deployed on Midnight Preview via `npm run deploy` (scripts/deploy.ts). See README "Contract Address".
-export const DEPLOYED_CONTRACT_ADDRESS = 'b8cc902ddf2ce0a12911ce303840c2b3b2d2bf596ddca4dc0357315db856b469';
+// Deployed on Midnight Preprod via web/deploy-preprod.html. See README "Contract Address".
+export const DEPLOYED_CONTRACT_ADDRESS = 'd040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440621956752';
 
 export const PRIVATE_STATE_ID = 'certiproofPrivateState';
 
@@ -235,8 +233,8 @@ export async function buildProviders(connectedAPI: ConnectedAPI, networkId: stri
   } catch (error) {
     console.error('[CertiProof] Lace did not provide a proving provider:', error);
     throw new Error(
-      'Your Lace wallet does not support in-wallet proving (getProvingProvider failed). ' +
-        'Update the Lace extension to the latest version and try again.',
+      'Your wallet does not support in-wallet proving (getProvingProvider failed). ' +
+        'Update the wallet extension to the latest version and try again.',
     );
   }
 

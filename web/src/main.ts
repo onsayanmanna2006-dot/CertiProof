@@ -3,7 +3,7 @@ import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
 import { callVerifyCertificate, VerifyCertificateError, type StudentCertificateInput } from './contract';
 
-const NETWORK_ID = 'preview';
+const NETWORK_ID = 'preprod';
 
 // --- Subtle hero seal parallax (decorative only) -----------------------
 (function initHeroParallax() {
@@ -120,7 +120,7 @@ function init() {
       walletBtn.textContent = 'Disconnect';
       walletBtn.classList.add('is-connected');
     } else {
-      walletBtn.textContent = 'Connect Lace';
+      walletBtn.textContent = 'Connect Wallet';
       walletBtn.classList.remove('is-connected');
     }
   }
@@ -198,7 +198,7 @@ function init() {
   function renderWalletActionNeeded(reason: string) {
     setWorkflow('circuit', { failedAt: 'circuit' });
     statusPill.className = 'status-indicator fail';
-    statusPill.textContent = 'Action needed in Lace';
+    statusPill.textContent = 'Action needed in your wallet';
 
     resultContainer.className = 'verification-result';
     resultContainer.innerHTML = `
@@ -206,13 +206,13 @@ function init() {
         <div class="result-top">
           <span class="result-icon fail">&#33;</span>
           <div class="result-heading">
-            <span class="title">Lace needs your attention</span>
+            <span class="title">Your wallet needs your attention</span>
             <span class="subtitle">${reason}</span>
           </div>
         </div>
         <div class="result-row">
           <span class="result-label">What to do</span>
-          <span class="result-value">Unlock Lace (or approve/retry the request it's showing), then click "Generate ZK Proof" again.</span>
+          <span class="result-value">Unlock your wallet (or approve/retry the request it's showing), then click "Generate ZK Proof" again.</span>
         </div>
       </div>
     `;
@@ -239,7 +239,7 @@ function init() {
           <span class="result-value">0x${bytesToHex(certHash)}</span>
         </div>
         <div class="result-row">
-          <span class="result-label">Transaction ID (Preview)</span>
+          <span class="result-label">Transaction ID (Preprod)</span>
           <span class="result-value">${txId}</span>
         </div>
         <div class="result-row">
@@ -275,7 +275,7 @@ function init() {
     e.preventDefault();
 
     if (!isWalletConnected()) {
-      alert('Connect your Lace wallet first.');
+      alert('Connect your Midnight wallet first.');
       return;
     }
 
@@ -292,7 +292,7 @@ function init() {
     privacyProof.hidden = true;
 
     setWorkflow('circuit');
-    statusPill.textContent = 'Running circuit & awaiting Lace approval';
+    statusPill.textContent = 'Running circuit & awaiting wallet approval';
 
     try {
       const connectedAPI = getConnectedWallet()!;
@@ -321,7 +321,7 @@ function init() {
         renderWalletActionNeeded(
           `Insufficient ${token} to pay transaction fees` +
             (failure.message ? `: ${failure.message}` : '.') +
-            ' DUST accrues automatically over time from NIGHT you hold — check your DUST balance in Lace and retry once it\'s non-zero.',
+            ' DUST accrues automatically over time from NIGHT you hold — check your DUST balance in your wallet and retry once it\'s non-zero.',
         );
       } else if (isWalletApiFailure(failure)) {
         const detail = [failure.code, failure.reason || failure.message].filter(Boolean).join(': ');
