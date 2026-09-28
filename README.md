@@ -4,7 +4,7 @@
 
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
-**🔗 Links:** [Live demo (Preprod)](https://onsayanmanna2006-dot.github.io/CertiProof/) · [X / Twitter: @sayanmanna2st](https://x.com/sayanmanna2st) · [Demo video](https://youtu.be/_aA2fj_iEwo)
+**🔗 Links:** [Live demo (Preprod)](https://onsayanmanna2006-dot.github.io/CertiProof/) · [X / Twitter: @sayanmanna2st](https://x.com/sayanmanna2st) · [Demo video](https://youtu.be/zgpzuF84m8o)
 
 > **Note for reviewers — wallet:** The live demo runs on **Preprod** and was tested with the
 > **1AM wallet** (Chrome extension). I'm using the 1AM wallet because Lace doesn't generate DUST
@@ -348,9 +348,14 @@ connected wallet the page still loads and explains what's needed.
 
 ## Demo Video
 
-[https://youtu.be/_aA2fj_iEwo](https://youtu.be/_aA2fj_iEwo) — a screen recording of: connecting
-Lace, submitting a passing certificate (Lace approval prompts, real transaction ID), and the
-on-chain privacy proof panel.
+[https://youtu.be/zgpzuF84m8o](https://youtu.be/zgpzuF84m8o) — a screen recording on **Midnight
+Preprod** using the 1AM wallet: connecting the wallet, submitting a passing certificate (score 78),
+approving the transaction, the **Verified** result with its Preprod transaction ID, and the on-chain
+privacy proof panel showing marks, student ID and salt are not on the ledger.
+
+*(I'm using the 1AM wallet because Lace doesn't generate DUST on Preprod yet.)*
+
+Earlier recording on Preview with Lace: [https://youtu.be/_aA2fj_iEwo](https://youtu.be/_aA2fj_iEwo)
 
 ---
 
