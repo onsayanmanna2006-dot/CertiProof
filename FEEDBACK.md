@@ -2,7 +2,7 @@
 
 How CertiProof collects feedback from real Preprod testers, turns it into changes, and records what changed.
 
-- **Feedback form:** _link added once the form is live_
+- **Feedback form:** https://docs.google.com/forms/d/e/1FAIpQLScYbdkijqY4tb85IpbsIPvle3FNAEOCkibERx-PNFdmMWp2CA/viewform
 - **Verified tester list:** [USERS.md](USERS.md)
 - **Try it yourself:** [docs/TRY-IT.md](docs/TRY-IT.md)
 

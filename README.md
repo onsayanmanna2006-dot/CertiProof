@@ -370,6 +370,7 @@ CertiProof is being tested by real users on Midnight Preprod.
 
 * **Try it:** [docs/TRY-IT.md](docs/TRY-IT.md), a 5-minute guide for new testers.
 * **Tester list:** [USERS.md](USERS.md), each tester's wallet address and a transaction ID that anyone can check on the public Preprod indexer.
+* **Feedback form:** https://docs.google.com/forms/d/e/1FAIpQLScYbdkijqY4tb85IpbsIPvle3FNAEOCkibERx-PNFdmMWp2CA/viewform (the dApp opens it with your wallet address and transaction ID pre-filled)
 * **Feedback loop:** [FEEDBACK.md](FEEDBACK.md), how feedback is collected, what testers said, and what changed because of it.
 
 **How the tester list is built and checked:**

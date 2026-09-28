@@ -9,12 +9,16 @@
  * transaction-ID questions, click "Get link", and paste the result below.
  * Leave it empty to hide the feedback button (copying details still works).
  */
-export const FEEDBACK_FORM_PREFILL_URL: string = '';
+export const FEEDBACK_FORM_PREFILL_URL: string =
+  'https://docs.google.com/forms/d/e/1FAIpQLScYbdkijqY4tb85IpbsIPvle3FNAEOCkibERx-PNFdmMWp2CA/viewform?usp=pp_url&entry.1795451599=%7Baddress%7D&entry.1332191966=%7BtxId%7D';
 
 export function buildFeedbackUrl(walletAddress: string, txId: string): string | null {
   if (!FEEDBACK_FORM_PREFILL_URL) return null;
-  return FEEDBACK_FORM_PREFILL_URL.replace('%7Baddress%7D', encodeURIComponent(walletAddress))
-    .replace('{address}', encodeURIComponent(walletAddress))
-    .replace('%7BtxId%7D', encodeURIComponent(txId))
-    .replace('{txId}', encodeURIComponent(txId));
+  // Placeholders may arrive URL-encoded (%7B…%7D), and in many fonts a
+  // capital I and lowercase l are indistinguishable when typing {txId}, so
+  // match loosely: {address}, and any of {tx}, {txid}, {txId}, {txld}.
+  return FEEDBACK_FORM_PREFILL_URL.replace(/(?:\{|%7B)address(?:\}|%7D)/i, encodeURIComponent(walletAddress)).replace(
+    /(?:\{|%7B)tx(?:[il]d)?(?:\}|%7D)/i,
+    encodeURIComponent(txId),
+  );
 }

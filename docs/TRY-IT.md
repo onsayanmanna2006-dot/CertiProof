@@ -32,7 +32,7 @@ Click **Passing sample · score 78** (or type your own made-up details; **don't 
 You'll see **Verified ✓**, a **Transaction ID**, and your **wallet address**. Scroll down to the privacy proof: your marks, ID and salt are *not* on the blockchain.
 
 **7. Send feedback (1 minute)**
-Click **Share feedback**. Your wallet address and transaction ID are already filled in; just answer the short questions and submit. That's what counts you as a CertiProof tester.
+Click **Share feedback**. Your wallet address and transaction ID are already filled in; just answer the short questions and submit. That's what counts you as a CertiProof tester. (If the button doesn't appear, use the form directly: https://docs.google.com/forms/d/e/1FAIpQLScYbdkijqY4tb85IpbsIPvle3FNAEOCkibERx-PNFdmMWp2CA/viewform and paste your wallet address and transaction ID.)
 
 **8. (Optional) Try the employer side**
 Click **Check this certificate as an employer**, or paste any certificate hash into **Check a certificate** at the bottom of the page. It confirms the certificate on-chain without a wallet.
