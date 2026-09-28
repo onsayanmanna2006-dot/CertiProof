@@ -858,3 +858,145 @@ input:focus {
     padding-top: 2rem;
   }
 }
+
+/* ---------- Live on-chain counter (hero) ---------- */
+
+.hero-stat {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.hero-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.hero-stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ---------- After-verification: wallet + feedback ---------- */
+
+.next-steps {
+  margin-top: 1.25rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--violet-soft);
+  border-radius: var(--radius-md);
+  background: var(--violet-soft);
+}
+
+.next-steps h3 {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.next-steps p {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.next-steps-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.next-steps-actions .cta-primary {
+  width: auto;
+  margin-top: 0;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.next-steps-actions .secondary-btn {
+  padding: 0.6rem 1rem;
+}
+
+/* ---------- Check a certificate (verifier side) ---------- */
+
+.check-panel {
+  position: relative;
+  z-index: 1;
+  width: min(1180px - 3.5rem, 100% - 3.5rem);
+  margin: 0 auto 4rem;
+  padding: 1.75rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+}
+
+.check-panel .panel-caption {
+  max-width: 70ch;
+}
+
+.check-form {
+  margin-top: 1.1rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.check-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.8rem 0.95rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  border: 1px solid var(--hairline);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.check-form .cta-primary {
+  width: auto;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.check-result {
+  margin-top: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: var(--bg-inset);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.check-result strong { color: var(--text-primary); }
+.check-result.is-pass { border-color: var(--success); background: var(--success-soft); }
+.check-result.is-fail { border-color: var(--danger); background: var(--danger-soft); }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .check-panel {
+    margin-bottom: 3rem;
+    padding: 1.35rem;
+  }
+
+  .check-form {
+    flex-direction: column;
+  }
+
+  .check-form .cta-primary {
+    width: 100%;
+  }
+}

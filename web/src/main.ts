@@ -2,6 +2,8 @@ import './polyfills';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 import { connectWallet, disconnectWallet, getConnectedWallet, isWalletConnected, WalletNotFoundError } from './wallet';
 import { callVerifyCertificate, VerifyCertificateError, type StudentCertificateInput } from './contract';
+import { fetchTotalVerified, InvalidCertHashError, lookupCertificate, parseCertHash } from './lookup';
+import { buildFeedbackUrl } from './feedback';
 
 const NETWORK_ID = 'preprod';
 
@@ -39,6 +41,10 @@ const NETWORK_ID = 'preprod';
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 }
 
 // contract.ts's callVerifyCertificate throws VerifyCertificateError with an
@@ -88,6 +94,12 @@ function init() {
   const walletBtn = document.getElementById('wallet-btn') as HTMLButtonElement;
   const privacyProof = document.getElementById('privacy-proof') as HTMLElement;
   const privacyProofOutput = document.getElementById('privacy-proof-output') as HTMLElement;
+  const heroStat = document.getElementById('hero-stat') as HTMLElement;
+  const heroStatValue = document.getElementById('hero-stat-value') as HTMLElement;
+  const checkForm = document.getElementById('check-form') as HTMLFormElement;
+  const checkHashInput = document.getElementById('check-hash') as HTMLInputElement;
+  const checkBtn = document.getElementById('check-btn') as HTMLButtonElement;
+  const checkResult = document.getElementById('check-result') as HTMLElement;
 
   const workflowSteps = Array.from(document.querySelectorAll<HTMLElement>('.workflow-step'));
   const stepOrder = ['credential', 'circuit', 'proof', 'verify', 'verified'];
@@ -155,7 +167,9 @@ function init() {
     studentIdInput.value = 'STUDENT_001_ALICE';
     subjectIdInput.value = 'CS_101_ALGORITHMS';
     marksInput.value = '78';
-    saltInput.value = 'c8f1e94b2a304e76d91f284b';
+    // Fresh salt per run, so every tester commits their own distinct
+    // certificate hash rather than re-verifying one shared sample.
+    saltInput.value = randomHex(12);
     form.dispatchEvent(new Event('submit'));
   });
 
@@ -219,7 +233,13 @@ function init() {
     privacyProof.hidden = true;
   }
 
-  function renderVerified(input: StudentCertificateInput, certHash: Uint8Array, txId: string, totalVerified: bigint) {
+  function renderVerified(
+    input: StudentCertificateInput,
+    certHash: Uint8Array,
+    txId: string,
+    totalVerified: bigint,
+    walletAddress: string | null,
+  ) {
     setWorkflow('verified');
     statusPill.className = 'status-indicator pass';
     statusPill.textContent = 'Verification passed';
@@ -254,8 +274,19 @@ function init() {
           <span class="result-label">Shielded private data (never disclosed)</span>
           <span class="result-value muted">marks, studentId, salt</span>
         </div>
+        ${
+          walletAddress
+            ? `<div class="result-row">
+          <span class="result-label">Your wallet address (Preprod)</span>
+          <span class="result-value">${escapeHtml(walletAddress)}</span>
+        </div>`
+            : ''
+        }
       </div>
+      ${renderNextSteps(certHash, txId, walletAddress)}
     `;
+    wireNextSteps(certHash, txId, walletAddress);
+    showTotalVerified(totalVerified);
 
     const serializedLedger = JSON.stringify({ totalVerified: totalVerified.toString(), certHash: bytesToHex(certHash) });
     const leaked = [input.marks.toString(), input.studentId, input.salt].filter((v) => serializedLedger.includes(v));
@@ -270,6 +301,87 @@ function init() {
       `  studentId ("${input.studentId}") -> ${leaked.includes(input.studentId) ? 'FOUND (!)' : 'not found'}\n` +
       `  salt ("${input.salt}")           -> ${leaked.includes(input.salt) ? 'FOUND (!)' : 'not found'}`;
   }
+
+  function renderNextSteps(certHash: Uint8Array, txId: string, walletAddress: string | null): string {
+    const feedbackUrl = walletAddress ? buildFeedbackUrl(walletAddress, txId) : null;
+    return `
+      <div class="next-steps">
+        <h3>Thanks for testing CertiProof on Preprod!</h3>
+        <p>Your transaction is on-chain. Share quick feedback &mdash; your wallet address and transaction ID are filled in for you.</p>
+        <div class="next-steps-actions">
+          ${feedbackUrl ? `<a class="cta-primary" href="${escapeHtml(feedbackUrl)}" target="_blank" rel="noopener">Share feedback (1 min)</a>` : ''}
+          <button type="button" class="secondary-btn" id="copy-details-btn">Copy wallet &amp; tx ID</button>
+          <button type="button" class="secondary-btn" id="check-this-btn">Check this certificate as an employer</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function wireNextSteps(certHash: Uint8Array, txId: string, walletAddress: string | null) {
+    const copyBtn = document.getElementById('copy-details-btn') as HTMLButtonElement;
+    copyBtn.addEventListener('click', async () => {
+      const details = `Wallet address: ${walletAddress ?? '(not available)'}\nTransaction ID: ${txId}`;
+      try {
+        await navigator.clipboard.writeText(details);
+        copyBtn.textContent = 'Copied!';
+      } catch {
+        copyBtn.textContent = 'Copy failed — select the text above';
+      }
+    });
+
+    (document.getElementById('check-this-btn') as HTMLButtonElement).addEventListener('click', () => {
+      checkHashInput.value = `0x${bytesToHex(certHash)}`;
+      document.getElementById('check')!.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      checkForm.requestSubmit();
+    });
+  }
+
+  function showTotalVerified(total: bigint) {
+    heroStatValue.textContent = total.toString();
+    heroStat.hidden = false;
+  }
+
+  async function getWalletAddress(): Promise<string | null> {
+    try {
+      const { unshieldedAddress } = await getConnectedWallet()!.getUnshieldedAddress();
+      return unshieldedAddress;
+    } catch (error) {
+      console.warn('[CertiProof] could not read the wallet address:', error);
+      return null;
+    }
+  }
+
+  checkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    checkResult.hidden = false;
+    checkResult.className = 'check-result';
+
+    let certHash: Uint8Array;
+    try {
+      certHash = parseCertHash(checkHashInput.value);
+    } catch (error) {
+      checkResult.classList.add('is-fail');
+      checkResult.textContent = error instanceof InvalidCertHashError ? error.message : String(error);
+      return;
+    }
+
+    checkBtn.disabled = true;
+    checkResult.textContent = 'Reading the public Preprod ledger…';
+    try {
+      const { verified, totalVerified } = await lookupCertificate(certHash);
+      showTotalVerified(totalVerified);
+      checkResult.classList.add(verified ? 'is-pass' : 'is-fail');
+      checkResult.innerHTML = verified
+        ? `<strong>&#10003; Verified on-chain.</strong> This certificate was proven to meet the requirement (marks &ge; 60) by a zero-knowledge proof. The student's marks, ID and salt are not stored anywhere on-chain.`
+        : `<strong>&times; Not found.</strong> No verified certificate with this hash exists on the CertiProof Preprod contract. Check the hash was copied in full.`;
+    } catch (error) {
+      console.error('[CertiProof] certificate lookup failed:', error);
+      checkResult.classList.add('is-fail');
+      checkResult.textContent = `Could not reach the Preprod indexer: ${error instanceof Error ? error.message : String(error)}`;
+    } finally {
+      checkBtn.disabled = false;
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -302,9 +414,11 @@ function init() {
         input,
       );
 
+      const walletAddress = await getWalletAddress();
+
       setWorkflow('proof');
       setWorkflow('verify');
-      renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n);
+      renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n, walletAddress);
     } catch (error) {
       console.error('[CertiProof] verifyCertificate failed:', error);
 
@@ -337,6 +451,10 @@ function init() {
   });
 
   renderWalletButton();
+
+  fetchTotalVerified()
+    .then(showTotalVerified)
+    .catch((error) => console.warn('[CertiProof] could not load the live verified count:', error));
 }
 
 // This module's top-level code can take a while to reach this point (importing

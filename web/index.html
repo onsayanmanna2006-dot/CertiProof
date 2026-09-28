@@ -21,6 +21,7 @@
       <a href="#vault">Verification</a>
       <a href="#workflow">Credentials</a>
       <a href="#public-private">Network</a>
+      <a href="#check">Check a certificate</a>
     </nav>
     <div class="header-actions">
       <div class="network-status">
@@ -35,6 +36,10 @@
     <div class="hero-copy">
       <h1 class="hero-title">ZK Certificate<br>Verifier</h1>
       <p class="hero-sub">Confidential credential verification powered by zero-knowledge proofs. Prove a qualification is met &mdash; without revealing the record behind it.</p>
+      <p class="hero-stat" id="hero-stat" hidden>
+        <span class="hero-stat-value" id="hero-stat-value">&ndash;</span>
+        <span class="hero-stat-label">certificates verified on Midnight Preprod</span>
+      </p>
     </div>
 
     <div class="hero-visual" aria-hidden="true">
@@ -172,6 +177,21 @@
       </div>
     </section>
   </main>
+
+  <section class="check-panel" id="check" aria-labelledby="check-heading">
+    <div class="panel-heading">
+      <div>
+        <h2 id="check-heading">Check a certificate</h2>
+        <p class="panel-caption">For employers and verifiers. Paste a certificate hash to confirm on-chain that it passed &mdash; no wallet needed, and nothing about the student is revealed.</p>
+      </div>
+    </div>
+    <form id="check-form" class="check-form">
+      <label for="check-hash" class="visually-hidden">Certificate hash</label>
+      <input type="text" id="check-hash" placeholder="0x&hellip; certificate hash (64 hex characters)" autocomplete="off" spellcheck="false" required>
+      <button type="submit" id="check-btn" class="cta-primary">Check on-chain</button>
+    </form>
+    <div id="check-result" class="check-result" aria-live="polite" hidden></div>
+  </section>
 
   <footer class="site-footer">
     <p>Midnight Network &bull; Compact &bull; ZK-Certificate-Verifier</p>
