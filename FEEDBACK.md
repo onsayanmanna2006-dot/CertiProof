@@ -77,4 +77,4 @@ _Filled in as responses arrive. The summary below is updated from the real form 
 
 | Theme | How many testers | Example (quoted) | Decision | Commit |
 |---|---|---|---|---|
-| Couldn't switch 1AM to Preprod | 1 | 1AM popup: "Gateway sign-in failed" (new wallet still on MAIN, still "INITIALIZING…") | Wallet-side issue, not CertiProof. Tester guide now says to wait for 1AM to finish initializing before switching to Preprod, plus a troubleshooting row. | this change |
+| Couldn't switch 1AM to Preprod | 1 | 1AM popup: "Gateway sign-in failed" (new wallet still on MAIN, still "INITIALIZING…") | Wallet-side issue, not CertiProof. Tester guide now says to wait for 1AM to finish initializing before switching to Preprod, plus a troubleshooting row. | `aa33019` |
