@@ -17,7 +17,7 @@ CertiProof lets a student prove they passed an exam (marks 60 or more) **without
 Search for **"1AM wallet"** in the Chrome Web Store and add it to Chrome. Create a new wallet and **write down the recovery phrase** somewhere safe. Never share it with anyone, including us.
 
 **2. Switch 1AM to Preprod**
-In the 1AM wallet settings, choose the **Preprod** network.
+New wallets start on **MAIN** (mainnet). **First wait until the bar at the top stops showing "INITIALIZING…"**, then click the expand icon ⛶ to open 1AM in a full tab, open the network settings and choose **PREPROD**. Switching while it's still initializing can fail with "Gateway sign-in failed".
 
 **3. Wait until the wallet has synced**
 Open the 1AM wallet tab and leave it open until it stops showing "Initializing…" or "syncing". The first time can take a few minutes. If you skip this, the **Approve** button stays grey later.
@@ -57,6 +57,7 @@ Click **Check this certificate as an employer**, or paste any certificate hash i
 | "Wallet init timed out" in 1AM | Reload the 1AM tab. If it keeps happening, turn the extension off and on at `chrome://extensions`. |
 | "Insufficient DUST" or asks for funds | Your DUST is still 0. Check step 4: get NIGHT from the faucet, click **Generate DUST** in 1AM, wait until DUST is above 0, then try again. |
 | Faucet says to wait / rate limited | The faucet limits requests. Wait a while and try again, or ask a friend who already has NIGHT to send you some. |
+| "Gateway sign-in failed" when switching to Preprod | 1AM was still initializing. Click OK, wait until "INITIALIZING…" is gone, then switch again. If it repeats, turn 1AM off and on at `chrome://extensions` and retry. |
 | Using Lace instead of 1AM | Lace doesn't generate DUST on Preprod yet, so please use 1AM. |
 
 **What's shared:** your wallet address and transaction ID are published in the project's tester list ([USERS.md](../USERS.md)). Both are public on the test network anyway. Nothing else about you is published.
