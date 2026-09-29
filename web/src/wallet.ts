@@ -39,8 +39,21 @@ export function getConnectedWallet(): ConnectedAPI | undefined {
   return connectedAPI;
 }
 
+// Wallet extensions can inject `window.midnight` a moment after the page
+// loads (a tester reported connection trouble), so poll briefly before
+// concluding no wallet is installed.
+async function waitForWallet(timeoutMs = 3000): Promise<InitialAPI | undefined> {
+  const deadline = Date.now() + timeoutMs;
+  let wallet = getFirstCompatibleWallet();
+  while (!wallet && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    wallet = getFirstCompatibleWallet();
+  }
+  return wallet;
+}
+
 export async function connectWallet(networkId: string): Promise<ConnectedAPI> {
-  const initialAPI = getFirstCompatibleWallet();
+  const initialAPI = await waitForWallet();
   if (!initialAPI) {
     throw new WalletNotFoundError();
   }

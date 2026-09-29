@@ -405,6 +405,16 @@ function init() {
 
     setWorkflow('circuit');
     statusPill.textContent = 'Running circuit & awaiting wallet approval';
+    // Testers said verifying "takes some time" with no sign of progress, so
+    // show how long it's been and why: the proof is built on their device.
+    const startedAt = Date.now();
+    const showElapsed = () => {
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      resultContainer.className = 'verification-result';
+      resultContainer.innerHTML = `<p class="empty-copy">Working&hellip; ${seconds}s. Your zero-knowledge proof is being generated on your own device and then submitted to Preprod &mdash; this can take a minute or two. Approve the request in your wallet when it pops up, and keep this tab open.</p>`;
+    };
+    showElapsed();
+    const elapsedTimer = window.setInterval(showElapsed, 1000);
 
     try {
       const connectedAPI = getConnectedWallet()!;
@@ -416,10 +426,12 @@ function init() {
 
       const walletAddress = await getWalletAddress();
 
+      window.clearInterval(elapsedTimer);
       setWorkflow('proof');
       setWorkflow('verify');
       renderVerified(input, certHash, txId, updatedLedger?.totalVerified ?? 0n, walletAddress);
     } catch (error) {
+      window.clearInterval(elapsedTimer);
       console.error('[CertiProof] verifyCertificate failed:', error);
 
       // contract.ts already fully unwraps FiberFailure/Cause/wrapper layers
@@ -445,7 +457,9 @@ function init() {
         statusPill.className = 'status-indicator fail';
         statusPill.textContent = 'Verification failed';
         resultContainer.className = 'verification-result';
-        resultContainer.innerHTML = `<p class="empty-copy">Error: ${message}</p>`;
+        // Usually a dropped connection to the wallet, proof server or Preprod
+        // node — say so plainly instead of showing only the raw error.
+        resultContainer.innerHTML = `<p class="empty-copy"><strong>Something went wrong while talking to your wallet or the Preprod network.</strong> Check your internet connection, make sure your wallet is unlocked, set to Preprod and fully synced, then click "Generate ZK Proof" again.</p><p class="empty-copy">Details: ${message}</p>`;
       }
     }
   });
