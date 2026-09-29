@@ -28,7 +28,7 @@ const INDEXER_URI = 'https://indexer.preprod.midnight.network/api/v3/graphql';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CSV_PATH = path.join(ROOT, 'users', 'users.csv');
 const OUT_PATH = path.join(ROOT, 'USERS.md');
-const TARGET_USERS = 50;
+const TARGET_USERS = 70;
 
 interface OnChainTx {
   hash: string;
