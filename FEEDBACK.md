@@ -65,16 +65,24 @@ Found while testing the Level 4 MVP end to end on Preprod, before outside tester
 | 4 | An employer had no way to check a certificate without a wallet or the command line, which is half of the product's promise. | Added **Check a certificate**: paste a hash and it reads the public Preprod ledger directly, with no wallet needed. | `2562cff` |
 | 5 | Testers had to copy their wallet address and transaction ID by hand to report back. | After verifying, the dApp shows the wallet address and a **Share feedback** button that pre-fills both into the form. | `2562cff` |
 
-### Round 1: outside testers
+### Round 1: outside testers (2026-09-29 → 2026-09-30)
 
-_Filled in as responses arrive. The summary below is updated from the real form responses:_
+Summary of the real form responses exported on 2026-09-30. Every tester's transaction was checked on-chain by `npm run users` (see [USERS.md](USERS.md)).
 
 | Metric | Value |
 |---|---|
-| Verified testers (see USERS.md) | 0 / 50 |
-| Average ease-of-use score | – |
-| "Would use it for real" (Yes / Maybe / No) | – |
+| Verified testers (see USERS.md) | 44 / 70 (all 44 responses verified on-chain, 0 excluded) |
+| Average ease-of-use score (1–5) | **4.56** (43 answered: 30 × 5, 8 × 4, 4 × 3, 1 × 2) |
+| "Would use it for real" (Yes / Maybe / No) | 24 / 15 / 5 |
+| Reported something confusing or broken | 0 (every answer was "no" / "NA") |
 
 | Theme | How many testers | Example (quoted) | Decision | Commit |
 |---|---|---|---|---|
 | Couldn't switch 1AM to Preprod | 1 | 1AM popup: "Gateway sign-in failed" (new wallet still on MAIN, still "INITIALIZING…") | Wallet-side issue, not CertiProof. Tester guide now says to wait for 1AM to finish initializing before switching to Preprod, plus a troubleshooting row. | `aa33019` |
+| Verification feels slow | 1 (ease 3) | "it's take some time" | **Fixed now.** Proof generation happens on the tester's device and can't be skipped, so the dApp now shows a live seconds counter and explains what is happening and that it can take a minute or two. | `2ad8e82` |
+| Connection problems | 1 (ease 4) | "Try to improve connectivity" | **Fixed now.** The dApp waits up to 3 s for the wallet extension to load instead of failing at once, and a wallet/network error now says in plain words what to check (internet, wallet unlocked, Preprod, synced) and to retry. | `2ad8e82` |
+| Site didn't work properly | 1 (ease 2) | "website not work properly" | **Can't reproduce yet:** no details given, and this tester's transaction did verify on-chain. The clearer error message above should make the next report specific. Ask for a screenshot next round. | — |
+| Positive / no change needed | 17 | "ui ux is good and website is usefull", "Nothing, this website is perfect." | Nothing to change. | — |
+| Not sure they'd use it for real | 20 (15 Maybe, 5 No) | none gave a reason | **Later:** add a question to the form asking *why not*, so Round 2 can act on it. | — |
+
+**What we learned:** almost every tester could verify without help (38 of 43 scored 4 or 5). The weak points are **waiting time** and **connection reliability**, not the ZK flow itself, so Round 1's fixes target exactly those two things.

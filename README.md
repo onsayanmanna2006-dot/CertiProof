@@ -361,12 +361,13 @@ connected wallet the page still loads and explains what's needed.
 | Employers | **Check a certificate:** paste a certificate hash; the page reads the public Preprod ledger and says whether it was verified. | **No** |
 | Everyone | **Live counter:** total certificates verified on Preprod, read from the contract's `totalVerified`. | No |
 | Testers | **Share feedback:** after verifying, shows your wallet address and opens the feedback form with it and your transaction ID pre-filled. | Yes |
+| Everyone | **Progress timer & clear errors** *(from tester feedback)*: a live seconds counter while the proof is generated, and plain-language help when the wallet or network connection fails. | Yes |
 
 ---
 
 ## Preprod Users & Feedback
 
-CertiProof is being tested by real users on Midnight Preprod.
+CertiProof is being tested by real users on Midnight Preprod. **Round 1 so far: 44 testers, all verified on-chain, average ease score 4.56 / 5.** Their feedback led to the progress timer and connection fixes above (details in [FEEDBACK.md](FEEDBACK.md)).
 
 * **Try it:** [docs/TRY-IT.md](docs/TRY-IT.md), a 5-minute guide for new testers.
 * **Tester list:** [USERS.md](USERS.md), each tester's wallet address and a transaction ID that anyone can check on the public Preprod indexer.
