@@ -369,7 +369,7 @@ connected wallet the page still loads and explains what's needed.
 
 ## Preprod Users & Feedback
 
-CertiProof is being tested by real users on Midnight Preprod. **Round 1: 51 testers, all verified on-chain, average ease score 4.54 / 5.** Their feedback led to the progress timer and connection fixes above (details in [FEEDBACK.md](FEEDBACK.md)).
+CertiProof is being tested by real users on Midnight Preprod. **Round 1: 73 testers, all verified on-chain, average ease score 4.54 / 5.** Their feedback led to the progress timer and connection fixes above (details in [FEEDBACK.md](FEEDBACK.md)).
 
 * **Try it:** [docs/TRY-IT.md](docs/TRY-IT.md), a 5-minute guide for new testers.
 * **Tester list:** [USERS.md](USERS.md), each tester's wallet address and a transaction ID that anyone can check on the public Preprod indexer.

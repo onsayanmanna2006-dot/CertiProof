@@ -1,6 +1,6 @@
 # CertiProof Preprod Users
 
-**51 / 50** unique testers verified on Midnight Preprod.
+**73 / 70** unique testers verified on Midnight Preprod.
 
 Each row is a distinct wallet whose transaction is a successful `verifyCertificate` call on the CertiProof contract `d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440621956752`, checked against the public Preprod indexer by `npm run users` (`scripts/verify-users.ts`).
 
@@ -68,3 +68,25 @@ It should show `address: d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440
 | 49 | `mn_addr_preprod18a2dkwch733lp32f4l5jjwvp0cj5dvgwg2z02m0y32cy7hdkmurs69t5zr` | `00299dcec3876f55aa83f50ba57351e433ca470f87b47389be33abd8ca5ffee13f` | 2776885 | 2026-09-30 14:38 UTC |
 | 50 | `mn_addr_preprod1anza42fkn8fnw26t5dywlpxfwmrpnn0qlngc0yrvevyex6px9u3q0qrn0n` | `00cdd5cf24c4ee556ad7d6a2733aceda9b4622f4f982b8f5d4f0c07b09fa604e52` | 2777002 | 2026-09-30 14:50 UTC |
 | 51 | `mn_addr_preprod10yw3v65s7cyt36wu48yupf0fkguu0pytnlxx73mwff7nu83q5lgsshcz55` | `003cf3807cef69a7e539530c4a7707057c22e67f4eafcda80ad67f3d44f3fa8f59` | 2777263 | 2026-09-30 15:16 UTC |
+| 52 | `mn_addr_preprod1h4tgdmqalktwcknqaweg0jzgn8rl00uy7j3sx9jamuywjr733nnqassg2k` | `0020197b86ab644b610f39fe88f6bb2ae044085ddcf19f1465ed79ee0f681d3b63` | 2777582 | 2026-09-30 15:48 UTC |
+| 53 | `mn_addr_preprod1ctq2mwuau6fa2cuzy47lwzmemszqzz4g25uegaqnwkmgdsake3gqnng6hf` | `00ef9241b25e949493e149dc9d8857cbe1f2ce5850603817a451c9df936e9f9a13` | 2777977 | 2026-09-30 16:27 UTC |
+| 54 | `mn_addr_preprod12dv5vz334snawfq9a0nydskyr6htwmfxl6thekkt6970lz7m8nqsgp0xqp` | `00c6fbc7c483a75210cc9e1be679f6d62fa02d402a1d22fb58806de84d6e71530e` | 2778159 | 2026-09-30 16:46 UTC |
+| 55 | `mn_addr_preprod19gl2hxk8a4h8dqpg0an4jw5u4ym8p225p9jmtezhd8vhev3kmtgskgy9ju` | `00347420f2ce662852c9eff82c3754f41b5522d21c8d14070f96de561435e6761d` | 2778241 | 2026-09-30 16:54 UTC |
+| 56 | `mn_addr_preprod189s7cnrnw8lf3whl62mj8u8sqa0yet7gv5728phv4waurytc0z5q749qu7` | `009866fe261b299302c44d1b08655053e1709ce766ca679e6fbaa622d48c78e814` | 2778288 | 2026-09-30 16:58 UTC |
+| 57 | `mn_addr_preprod1r27n9cjzmm6dtqjw74x35n33fdf0ecklganw7xqlg5cdzrr2rg3qxu2g0c` | `00ea112111dc84dda42a103ea05579b0e637e19ba56f6ccb663cd35e2888f7e6e1` | 2778313 | 2026-09-30 17:01 UTC |
+| 58 | `mn_addr_preprod157mhx7jqh4gg5v2e7j588ej7ct54l2e8yvf5dhhd2zn84ryqrmhqvgmdwk` | `001ca644ac8442076765dcfd2c24b82113e0dbcd4860b78ab2529037678eef0346` | 2778345 | 2026-09-30 17:04 UTC |
+| 59 | `mn_addr_preprod1t7p07wy2snqh3l5ax2qt37uppjcaw0sgh6xnywvc2lv0l43wgnsqc9q574` | `00925a765706671cb0ea6f6d491b931d8a09b433d3f6695f7b16292169c755f59e` | 2778399 | 2026-09-30 17:10 UTC |
+| 60 | `mn_addr_preprod13nzy67vhx0u8k28z6eggpygf76c8ykzlp9wcwvf8m6smgxr2j90sy559hr` | `0038d48597ddd5db45479d07fe9c715f648d2831c12efaad5f056429c5862fee3c` | 2778421 | 2026-09-30 17:12 UTC |
+| 61 | `mn_addr_preprod17nzxqy88hrwyszmf9vnfnpsfu5h684ej3ucehhrsjhtwvljxfxyqtml704` | `00dfeafe7ce040bc4817df3656c69cdec846db066341cea01cb705333051d01e0f` | 2778445 | 2026-09-30 17:14 UTC |
+| 62 | `mn_addr_preprod1aj02x98r4sa7yf3saklld0rd65k07nvkshvlhga262yyqt32nymsulknlk` | `00a7234e49d24f93ffd8086d8b81b659bba1fcd3940db9b39bcad74e78f49fb36e` | 2778512 | 2026-09-30 17:21 UTC |
+| 63 | `mn_addr_preprod1zy80fh7n8mvg4z6reptzmkq6kcuwzewvxeha0g2rjma8qkg4z2mqgr00f0` | `00a965e1035593fa7e382849e56e99b795a0ddf7118b3e1d0fc011411fceb8442c` | 2778521 | 2026-09-30 17:22 UTC |
+| 64 | `mn_addr_preprod172zxuppnz7xrtj5hmj5rfy4qj9sg90ppdgt608mh67n33teua9qqa78qkc` | `0004fe33071db281a9c246b445548670dfb69a5a37cebd190099f3cb74886f3b0b` | 2778607 | 2026-09-30 17:30 UTC |
+| 65 | `mn_addr_preprod1z6etvk4ru9xy3sxstlardrkxrw8alw6eexpvf26k8lfrn7wwcf9sjgmya8` | `00d201fc09f8dea4bdf253b4250b3d97cd813292c1676c1fd0d6c8b4314951101d` | 2778634 | 2026-09-30 17:33 UTC |
+| 66 | `mn_addr_preprod1ecq3llwwswtlzv7az3qerz7enm5pj9snzmdt65j6zxdetda27c8q3qrpsa` | `00415150e4ddf3495a7e6f912968c3c5a0a397ced14e343c334d61d71bee1bd4c6` | 2778646 | 2026-09-30 17:34 UTC |
+| 67 | `mn_addr_preprod1a3v6szyv26punc8xpuykxx2x4e4f0uy7knan2n9d5vpv2mwkrses47apsc` | `0099ec53ba47565ce46af5b39930d0705c4f4a6ee2bee9f6badd0ef02e9a5fb7c7` | 2778709 | 2026-09-30 17:41 UTC |
+| 68 | `mn_addr_preprod1745yappy2gx9ac83ac52dnkhd2xz2te5tlhucayqmxhdjhldczfqjmqlf0` | `00d9593b42fb633f72caffdbd73858b874c95d075d2d08652d0a964e3b8c52cc70` | 2778747 | 2026-09-30 17:44 UTC |
+| 69 | `mn_addr_preprod18l2j979zsmx7qh94l8nvz6r779vkkaycwvqmvq8ap85mvsk5as0snhekkm` | `00b0ad2200fa8f58e3e70e8c34dec995a654468a17c51077e7916bb846927b2664` | 2778767 | 2026-09-30 17:46 UTC |
+| 70 | `mn_addr_preprod12dun4w3hc0h0qsapqmatly7fjv8zmg74lvcxhrmk30yla97fzclsxhy3yl` | `00e63526f404cd544a68d08d73f99cd65241faa2ecb186eabf353847d4b5dacdd9` | 2778771 | 2026-09-30 17:47 UTC |
+| 71 | `mn_addr_preprod1f95tkpknkfwzqjxnjq3e0uqtjam7k4942hzjtejakextd4lygrqq260gsk` | `00d3905de2a2fa08c000ddc603fc2d3543cd21edb073d360840878c3d3460f1f86` | 2778787 | 2026-09-30 17:48 UTC |
+| 72 | `mn_addr_preprod1hp48wjn3kh4pct45gyteepkqlz7063gypsvd8p3tk6allpznzlxsaz0hft` | `00c50ea9b9fa092c046534192bab84e4d2665e7aa7d75eea4b379a285cff85613b` | 2778812 | 2026-09-30 17:51 UTC |
+| 73 | `mn_addr_preprod1aj5rva308nlvqp4hrgz9a6y24qlsmntrx6k5akq8vl9muaaqekyskwxa5q` | `00d0adcfa07608a8b87d6217a3910e69b4b56dad59a14fda89fc7da627ce09759f` | 2778847 | 2026-09-30 17:54 UTC |
