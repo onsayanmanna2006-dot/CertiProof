@@ -1,6 +1,6 @@
 # CertiProof Preprod Users
 
-**44 / 70** unique testers verified on Midnight Preprod.
+**51 / 50** unique testers verified on Midnight Preprod.
 
 Each row is a distinct wallet whose transaction is a successful `verifyCertificate` call on the CertiProof contract `d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440621956752`, checked against the public Preprod indexer by `npm run users` (`scripts/verify-users.ts`).
 
@@ -61,3 +61,10 @@ It should show `address: d040bdc193d2cfcba02e94765c64eaddb16077cf072b556c8a4c440
 | 42 | `mn_addr_preprod19lh98s2kdhsnxfvuczhu0vt8w8j6ywj8lzqr8n40mzm8s7mpcg6s40e4ru` | `00178900eb783ecd855047bf7f503a9001c9a6cdffecde6735e10a2cc62e9c0fcf` | 2765741 | 2026-09-29 20:02 UTC |
 | 43 | `mn_addr_preprod1nz6fkz4qrcvpg44e6sh68rzhqshak63u7du8gqgmkpv59pp53hmqc4putz` | `00723318cd6b3ada07bacd3a93e89cf53e03dbfadc30193fd6028c796cf1cbbada` | 2765923 | 2026-09-29 20:20 UTC |
 | 44 | `mn_addr_preprod1d2zse7nls3qmnds3ef0zxuzzl9mfpls7kfc9fu0qhkrfj4s4c6yqjtuws8` | `007b670ac87416d85d512036254d13b30a24b9748d082775ff7dfba14b71341153` | 2766074 | 2026-09-29 20:35 UTC |
+| 45 | `mn_addr_preprod1ugqlemk00ltzjg004hh8h9gq8fzss4nkm7gwap0u3q20sctkd74q6642sk` | `00059f419355f7efcaa92fa0275a4264f000da5b7ddef7c5152153091fc2105d8b` | 2771549 | 2026-09-30 05:43 UTC |
+| 46 | `mn_addr_preprod12px5ggm6ztmvs4shg9n08wxn3r3x3z0l8w6768x93q3ktr3mgfdqvkckqq` | `00fd0764dd81e209cdba88447cf40fb021fde3f9fc546672596eefde43c181f09b` | 2776391 | 2026-09-30 13:47 UTC |
+| 47 | `mn_addr_preprod1ru03cv8la9rkrx48hkehl9w7cgqmj9eg32pgpdwj473e8xzds00qrdcnn6` | `00d8cbb5da5d9d85ee872a85c35ec4eb1e765df6295290e29dcda506c3ab796cd3` | 2776616 | 2026-09-30 14:10 UTC |
+| 48 | `mn_addr_preprod1t4aq76mejpws4pgdhdacm40as6hysvjvp4e73tnqutxds228wujqtykstt` | `00f358909d017665b63332a3f8ada84c3337af13051745e64597b9700d5b8f86e1` | 2776721 | 2026-09-30 14:21 UTC |
+| 49 | `mn_addr_preprod18a2dkwch733lp32f4l5jjwvp0cj5dvgwg2z02m0y32cy7hdkmurs69t5zr` | `00299dcec3876f55aa83f50ba57351e433ca470f87b47389be33abd8ca5ffee13f` | 2776885 | 2026-09-30 14:38 UTC |
+| 50 | `mn_addr_preprod1anza42fkn8fnw26t5dywlpxfwmrpnn0qlngc0yrvevyex6px9u3q0qrn0n` | `00cdd5cf24c4ee556ad7d6a2733aceda9b4622f4f982b8f5d4f0c07b09fa604e52` | 2777002 | 2026-09-30 14:50 UTC |
+| 51 | `mn_addr_preprod10yw3v65s7cyt36wu48yupf0fkguu0pytnlxx73mwff7nu83q5lgsshcz55` | `003cf3807cef69a7e539530c4a7707057c22e67f4eafcda80ad67f3d44f3fa8f59` | 2777263 | 2026-09-30 15:16 UTC |

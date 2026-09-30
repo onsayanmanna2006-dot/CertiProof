@@ -71,9 +71,9 @@ Summary of the real form responses exported on 2026-09-30. Every tester's transa
 
 | Metric | Value |
 |---|---|
-| Verified testers (see USERS.md) | 44 / 70 (all 44 responses verified on-chain, 0 excluded) |
-| Average ease-of-use score (1–5) | **4.56** (43 answered: 30 × 5, 8 × 4, 4 × 3, 1 × 2) |
-| "Would use it for real" (Yes / Maybe / No) | 24 / 15 / 5 |
+| Verified testers (see USERS.md) | **51 / 50 ✅** (all 51 responses verified on-chain, 0 excluded) |
+| Average ease-of-use score (1–5) | **4.54** (50 answered: 33 × 5, 12 × 4, 4 × 3, 1 × 2) |
+| "Would use it for real" (Yes / Maybe / No) | 28 / 18 / 5 |
 | Reported something confusing or broken | 0 (every answer was "no" / "NA") |
 
 | Theme | How many testers | Example (quoted) | Decision | Commit |
@@ -82,7 +82,7 @@ Summary of the real form responses exported on 2026-09-30. Every tester's transa
 | Verification feels slow | 1 (ease 3) | "it's take some time" | **Fixed now.** Proof generation happens on the tester's device and can't be skipped, so the dApp now shows a live seconds counter and explains what is happening and that it can take a minute or two. | `2ad8e82` |
 | Connection problems | 1 (ease 4) | "Try to improve connectivity" | **Fixed now.** The dApp waits up to 3 s for the wallet extension to load instead of failing at once, and a wallet/network error now says in plain words what to check (internet, wallet unlocked, Preprod, synced) and to retry. | `2ad8e82` |
 | Site didn't work properly | 1 (ease 2) | "website not work properly" | **Can't reproduce yet:** no details given, and this tester's transaction did verify on-chain. The clearer error message above should make the next report specific. Ask for a screenshot next round. | — |
-| Positive / no change needed | 17 | "ui ux is good and website is usefull", "Nothing, this website is perfect." | Nothing to change. | — |
-| Not sure they'd use it for real | 20 (15 Maybe, 5 No) | none gave a reason | **Later:** add a question to the form asking *why not*, so Round 2 can act on it. | — |
+| Positive / no change needed | 19 | "ui ux is good and website is usefull", "Nothing, this website is perfect." | Nothing to change. | — |
+| Not sure they'd use it for real | 23 (18 Maybe, 5 No) | none gave a reason | **Later:** add a question to the form asking *why not*, so Round 2 can act on it. | — |
 
-**What we learned:** almost every tester could verify without help (38 of 43 scored 4 or 5). The weak points are **waiting time** and **connection reliability**, not the ZK flow itself, so Round 1's fixes target exactly those two things.
+**What we learned:** almost every tester could verify without help (45 of 50 scored 4 or 5). The weak points are **waiting time** and **connection reliability**, not the ZK flow itself, so Round 1's fixes target exactly those two things.
