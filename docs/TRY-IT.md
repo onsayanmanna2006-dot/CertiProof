@@ -37,6 +37,8 @@ Go to the live app (link above) and click **Connect Wallet**, then approve the c
 **6. Verify a certificate**
 Click **Passing sample · score 78** (or type your own made-up details; **don't use your real student ID**). Then approve the transaction in 1AM.
 
+While it works, the page shows a **seconds counter**. The zero-knowledge proof is made on your own computer, so it can take a minute or two. Keep the tab open and don't click again.
+
 **7. See the result**
 You'll see **Verified ✓**, a **Transaction ID**, and your **wallet address**. Scroll down to the privacy proof: your marks, ID and salt are *not* on the blockchain.
 
@@ -53,6 +55,8 @@ Click **Check this certificate as an employer**, or paste any certificate hash i
 | Problem | Fix |
 |---|---|
 | "Could not find a Midnight wallet" | Make sure 1AM is installed and enabled, then reload the page. |
+| "Something went wrong while talking to your wallet or the Preprod network" | Check your internet, unlock 1AM, make sure it is on **PREPROD** and synced, then click **Generate ZK Proof** again. |
+| The counter keeps going for more than 5 minutes | Check whether 1AM is waiting for you to click **Approve**. If not, reload the page and try again. |
 | Approve button is grey / "Wallet is still syncing" | Wait for 1AM to finish syncing, then click **Generate ZK Proof** again. |
 | "Wallet init timed out" in 1AM | Reload the 1AM tab. If it keeps happening, turn the extension off and on at `chrome://extensions`. |
 | "Insufficient DUST" or asks for funds | Your DUST is still 0. Check step 4: get NIGHT from the faucet, click **Generate DUST** in 1AM, wait until DUST is above 0, then try again. |
