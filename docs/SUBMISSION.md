@@ -10,6 +10,6 @@ Everything a reviewer needs, in one place.
 | Preprod users with wallet addresses, verifiable on-chain | [USERS.md](../USERS.md), where each row has a transaction ID checked on the Preprod indexer by `npm run users` | ✅ 73 verified (target 70) |
 | Feedback loop documented | [FEEDBACK.md](../FEEDBACK.md): how the loop works, Round 0 and Round 1, and each change linked to its commit | ✅ (updated as responses arrive) |
 | Demo video showing full MVP functionality | [https://youtu.be/CWl-8QiWuvI](https://youtu.be/CWl-8QiWuvI) (script: [DEMO-VIDEO.md](DEMO-VIDEO.md)) | ✅ |
-| Minimum 30 meaningful commits | [Commit history](https://github.com/onsayanmanna2006-dot/CertiProof/commits/main) | ✅ |
+| Minimum 30 meaningful commits | [Commit history](https://github.com/onsayanmanna2006-dot/CertiProof/commits/main) | ✅ 58 commits |
 
 **Wallet note:** the demo and testers use the **1AM wallet** because Lace doesn't generate DUST on Preprod (NIGHT arrives from the faucet, DUST stays 0). The dApp uses the standard Midnight DApp Connector API and works with any compatible wallet.
