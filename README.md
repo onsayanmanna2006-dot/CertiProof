@@ -4,7 +4,7 @@
 
 > **Privacy-Preserving Student Certificate Verification Using Zero-Knowledge Proofs on the Midnight Network**
 
-**🔗 Links:** [Live demo (Preprod)](https://onsayanmanna2006-dot.github.io/CertiProof/) · [X / Twitter: @sayanmanna2st](https://x.com/sayanmanna2st) · [Demo video](https://youtu.be/zgpzuF84m8o) · [Try it (tester guide)](docs/TRY-IT.md) · [Preprod users](USERS.md) · [Feedback loop](FEEDBACK.md) · [Submission checklist](docs/SUBMISSION.md)
+**🔗 Links:** [Live demo (Preprod)](https://onsayanmanna2006-dot.github.io/CertiProof/) · [X / Twitter: @sayanmanna2st](https://x.com/sayanmanna2st) · [Demo video](https://youtu.be/CWl-8QiWuvI) · [Try it (tester guide)](docs/TRY-IT.md) · [Preprod users](USERS.md) · [Feedback loop](FEEDBACK.md) · [Submission checklist](docs/SUBMISSION.md)
 
 > **Note for reviewers — wallet:** The live demo runs on **Preprod** and was tested with the
 > **1AM wallet** (Chrome extension). I'm using the 1AM wallet because Lace doesn't generate DUST
@@ -393,12 +393,15 @@ npm run users
 
 ## Demo Video
 
-[https://youtu.be/zgpzuF84m8o](https://youtu.be/zgpzuF84m8o) — a screen recording on **Midnight
-Preprod** using the 1AM wallet: connecting the wallet, submitting a passing certificate (score 78),
-approving the transaction, the **Verified** result with its Preprod transaction ID, and the on-chain
-privacy proof panel showing marks, student ID and salt are not on the ledger.
+**Full MVP demo (Level 5):** [https://youtu.be/CWl-8QiWuvI](https://youtu.be/CWl-8QiWuvI): a screen recording on **Midnight
+Preprod** using the 1AM wallet: connecting the wallet, verifying a passing certificate (score 79) with the
+live proof timer, the **Verified** result with its Preprod transaction ID and on-chain privacy proof, a
+failing score (59) being rejected, the employer **Check this certificate** view (no wallet needed), and the
+one-click **Share feedback** button.
 
 *(I'm using the 1AM wallet because Lace doesn't generate DUST on Preprod yet.)*
+
+Level 4 recording (Preprod): [https://youtu.be/zgpzuF84m8o](https://youtu.be/zgpzuF84m8o)
 
 Earlier recording on Preview with Lace: [https://youtu.be/_aA2fj_iEwo](https://youtu.be/_aA2fj_iEwo)
 
